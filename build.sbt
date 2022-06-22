@@ -15,24 +15,14 @@ lazy val root: Project = (project in file("."))
 lazy val storyGenerator: Project = (project in file("StoryGenerator"))
   .settings(
     name := "Story_Generator",
-    scalacOptions ++= Seq(
-      "-Xsource:3",
-      "-unchecked",
-      "-feature",
-      "-language:existentials",
-      "-language:higherKinds",
-      "-language:implicitConversions",
-      "-language:postfixOps",
-      "-deprecation",
-      "-encoding",
-      "utf8"
-    )
+    scalacOptions ++= compileOptions
   )
 
 lazy val jsFacade: Project = (project in file("Facade/JavaScript"))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "JavaScript_Facade",
+    scalacOptions ++= compileOptions,
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.1.0"
@@ -44,7 +34,29 @@ lazy val jvmFacade: Project = (project in file("Facade/JVM"))
   .enablePlugins(AssemblyPlugin)
   .settings(
     name := "JVM_Facade",
+    scalacOptions ++= compileOptions,
     assembly / assemblyJarName := "repl.jar",
   )
   .dependsOn(storyGenerator)
 
+lazy val excelConverter: Project = (project in file("ExcelConverter"))
+  .enablePlugins(AssemblyPlugin)
+  .settings(
+    name := "Excel_Converter",
+    scalacOptions ++= compileOptions,
+    assembly / assemblyJarName := "excel-cvt.jar",
+  )
+  .dependsOn(storyGenerator)
+
+lazy val compileOptions: Seq[String] = Seq(
+  "-Xsource:3",
+  "-unchecked",
+  "-feature",
+  "-language:existentials",
+  "-language:higherKinds",
+  "-language:implicitConversions",
+  "-language:postfixOps",
+  "-deprecation",
+  "-encoding",
+  "utf8"
+)
