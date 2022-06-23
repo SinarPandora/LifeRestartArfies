@@ -1,19 +1,21 @@
 package arfies.restart.life.generator
 
 import arfies.restart.life.player.Player
-import arfies.restart.life.player.Player.AttrChange
 import arfies.restart.life.state.GameState
 import arfies.restart.life.story.Event
 
 /**
  * 回合
  * "游戏就是状态的变化与表示"
- * 为了避免连续触发，每个回合每个技能/状态/天赋只触发一次
+ * 基本规则：
+ * 1. 为了避免连续触发，每个回合每个技能/状态/天赋只触发一次
+ * 2. 技能/状态/天赋触发属性改变时不能再次触发自己
  *
  * Author: sinar
  * 2022/6/21 22:05
  */
 class Round(ctx: StoryContext) {
+  val StoryContext(story, loader, out) = ctx
   /**
    * 回合开始阶段
    * 判定顺序：

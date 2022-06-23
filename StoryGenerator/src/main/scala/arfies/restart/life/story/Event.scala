@@ -1,8 +1,6 @@
 package arfies.restart.life.story
 
-import arfies.restart.life.player.Player
-import arfies.restart.life.player.Player.AttrChange
-import arfies.restart.life.story.Event.AgeCondition
+import arfies.restart.life.player.PlayerChange
 
 /**
  * 事件
@@ -14,20 +12,9 @@ case class Event
 (
   name: String,
   msg: String,
-  ageCond: AgeCondition,
-  includeCond: Player => Boolean,
-  excludeCond: Player => Boolean,
-  attrChanges: Seq[AttrChange],
-  otherEffect: Player => Player,
+  roundGreatEqual: Option[Int],
+  roundLessThan: Option[Int],
+  includeCond: Seq[Condition],
+  effects: Seq[PlayerChange],
   path: Option[Seq[String]]
 )
-
-object Event {
-  /**
-   * 年龄条件（左闭右开）
-   *
-   * @param after  大于等于
-   * @param before 小于
-   */
-  case class AgeCondition(after: Option[Int], before: Option[Int])
-}

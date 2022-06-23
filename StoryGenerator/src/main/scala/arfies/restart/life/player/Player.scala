@@ -20,6 +20,11 @@ case class Player
 )
 
 object Player {
+  object AttrType {
+    val NUM: String = "NUM"
+    val TAG: String = "TAG"
+  }
+
   /**
    * 属性
    *
@@ -31,46 +36,27 @@ object Player {
   case class Attr(name: String, attrType: String, isCustomizable: Boolean, isPinOnHub: Boolean)
 
   /**
-   * 属性变更
-   */
-  sealed trait AttrChange
-
-  /**
-   * 数值属性变更
-   *
-   * @param name   属性名
-   * @param change 变更函数
-   */
-  case class NumValueChange(name: String, change: Int => Int) extends AttrChange
-
-  /**
-   * 标签属性变更
-   *
-   * @param name    属性名
-   * @param toValue 目标值
-   */
-  case class TagChange(name: String, toValue: String) extends AttrChange
-
-  /**
    * 技能（也表示天赋）
    *
-   * @param name        名称
-   * @param activeOn    触发条件
-   * @param attrChanges 属性变更
-   * @param otherEffect 其他效果
-   * @param isTalent    是否为天赋（即可以在开场抽取）
-   *                    没有条件的天赋将在开场时自动生效
+   * @param name     名称
+   * @param activeOn 触发条件
+   * @param effects  效果列表
+   * @param isTalent 是否为天赋（即可以在开场抽取）
+   *                 没有条件的天赋将在开场时自动生效
    */
-  case class Skill(name: String, msg: String, otherEffect: Player => Player, attrChanges: Seq[AttrChange], activeOn: Condition, isTalent: Boolean)
+  case class Skill(name: String, msg: String, effects: Seq[PlayerChange], activeOn: Seq[Condition], isTalent: Boolean)
 
   /**
    * Buff
    *
-   * @param name        名称
-   * @param activeOn    触发条件（主动）
-   * @param attrChanges 属性变更
-   * @param otherEffect 其他效果
-   * @param roundCount  回合数
+   * @param name           名称
+   * @param activeOn       触发条件
+   * @param effects        效果列表
+   * @param onAddEffects   启动效果
+   * @param onLeaveEffects 离场效果
+   * @param roundCount     回合数（无回合数为永久）
    */
-  case class Buff(name: String, msg: String, otherEffect: Player => Player, attrChanges: Seq[AttrChange], activeOn: Condition, roundCount: Option[Int])
+  case class Buff(name: String, msg: String,
+                  effects: Seq[PlayerChange], onAddEffects: Seq[PlayerChange], onLeaveEffects: Seq[PlayerChange],
+                  activeOn: Seq[Condition], roundCount: Option[Int])
 }

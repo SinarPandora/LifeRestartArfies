@@ -47,7 +47,7 @@ object PlayerChange {
     val ACHIEVEMENT: String = "ACHIEVEMENT"
     val ENDING: String = "ENDING"
   }
-  case class AttrChange(name: String, value: Int, opt: String) extends PlayerChange(Targets.ATTR)
+  case class NumAttrChange(name: String, value: Int, opt: String) extends PlayerChange(Targets.ATTR)
   case class TageChange(name: String, value: Option[String], opt: String) extends PlayerChange(Targets.TAG)
   case class SkillChange(name: String, opt: String)  extends PlayerChange(Targets.SKILL)
   case class TalentChange(name: String, opt: String)  extends PlayerChange(Targets.TALENT)

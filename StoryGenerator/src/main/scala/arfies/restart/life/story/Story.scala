@@ -14,6 +14,7 @@ case class Story
 (
   attrs: Map[String, Attr],
   buffs: Map[String, Buff],
+  talents: Map[String, Skill],
   skills: Map[String, Skill],
   achievements: Map[String, Achievement],
   events: Seq[Event],
