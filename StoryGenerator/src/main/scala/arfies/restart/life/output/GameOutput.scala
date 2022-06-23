@@ -25,6 +25,14 @@ trait GameOutput {
    * @param level 消息等级
    */
   def toast(msg: String, level: OutputLevel = Level.Info): Unit
+
+  /**
+   * 打印日志
+   *
+   * @param msg   消息
+   * @param level 消息等级
+   */
+  def log(msg: String, level: OutputLevel = Level.Info): Unit
 }
 
 object GameOutput {
