@@ -49,14 +49,16 @@ object Player {
   /**
    * Buff
    *
-   * @param name           名称
-   * @param activeOn       触发条件
-   * @param effects        效果列表
-   * @param onAddEffects   启动效果
-   * @param onLeaveEffects 离场效果
-   * @param roundCount     回合数（无回合数为永久）
+   * @param name             名称
+   * @param activeOn         触发条件
+   * @param effects          效果列表
+   * @param onAddEffects     启动效果
+   * @param onLeaveEffects   离场效果
+   * @param roundCount       回合数（无回合数为永久）
+   * @param doubleApplicable 是否可以叠加
    */
   case class Buff(name: String, msg: String,
                   effects: Seq[PlayerChange], onAddEffects: Seq[PlayerChange], onLeaveEffects: Seq[PlayerChange],
-                  activeOn: Condition, roundCount: Option[Int])
+                  activeOn: Condition, roundCount: Option[Int],
+                  doubleApplicable: Boolean)
 }
