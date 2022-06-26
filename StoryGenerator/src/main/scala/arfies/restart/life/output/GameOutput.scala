@@ -1,7 +1,6 @@
 package arfies.restart.life.output
 
 import arfies.restart.life.output.GameOutput.Level
-import arfies.restart.life.output.GameOutput.Level.OutputLevel
 
 /**
  * 游戏输出
@@ -16,7 +15,7 @@ trait GameOutput {
    * @param msg   消息
    * @param level 消息等级
    */
-  def print(msg: String, level: OutputLevel = Level.Info): Unit
+  def print(msg: String, level: String = Level.INFO): Unit
 
   /**
    * 弹出吐司消息（流程外）
@@ -24,7 +23,7 @@ trait GameOutput {
    * @param msg   消息
    * @param level 消息等级
    */
-  def toast(msg: String, level: OutputLevel = Level.Info): Unit
+  def toast(msg: String, level: String = Level.INFO): Unit
 
   /**
    * 打印日志
@@ -32,19 +31,29 @@ trait GameOutput {
    * @param msg   消息
    * @param level 消息等级
    */
-  def log(msg: String, level: OutputLevel = Level.Info): Unit
+  def log(msg: String, level: String = Level.INFO): Unit
+
+  /**
+   * 输出调试信息
+   *
+   * @param msg 调试信息
+   */
+  def debug(msg: String): Unit = log(msg, level = Level.DEBUG)
+
+  /**
+   * 抛出异常
+   *
+   * @param msg 错误信息
+   */
+  def throws(msg: String): Unit
 }
 
 object GameOutput {
   object Level {
-    sealed trait OutputLevel
-
-    case object Info extends OutputLevel
-
-    case object Warning extends OutputLevel
-
-    case object Danger extends OutputLevel
-
-    case object Success extends OutputLevel
+    val DEBUG: String = "Debug"
+    val INFO: String = "Info"
+    val WARNING: String = "Warning"
+    val DANGER: String = "Danger"
+    val SUCCESS: String = "Success"
   }
 }
