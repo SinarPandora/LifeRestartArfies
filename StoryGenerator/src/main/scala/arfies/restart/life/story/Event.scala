@@ -14,7 +14,7 @@ case class Event
   msg: String,
   roundGreatEqual: Option[Int],
   roundLessThan: Option[Int],
-  includeCond: Seq[Condition],
+  includeCond: Condition,
   effects: Seq[PlayerChange],
   path: Option[Seq[String]]
 )

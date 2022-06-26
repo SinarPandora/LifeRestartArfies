@@ -44,7 +44,7 @@ object Player {
    * @param isTalent 是否为天赋（即可以在开场抽取）
    *                 没有条件的天赋将在开场时自动生效
    */
-  case class Skill(name: String, msg: String, effects: Seq[PlayerChange], activeOn: Seq[Condition], isTalent: Boolean)
+  case class Skill(name: String, msg: String, effects: Seq[PlayerChange], activeOn: Condition, isTalent: Boolean)
 
   /**
    * Buff
@@ -58,5 +58,5 @@ object Player {
    */
   case class Buff(name: String, msg: String,
                   effects: Seq[PlayerChange], onAddEffects: Seq[PlayerChange], onLeaveEffects: Seq[PlayerChange],
-                  activeOn: Seq[Condition], roundCount: Option[Int])
+                  activeOn: Condition, roundCount: Option[Int])
 }
