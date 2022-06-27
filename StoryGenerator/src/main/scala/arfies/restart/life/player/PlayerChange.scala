@@ -97,29 +97,54 @@ object PlayerChange {
         if (player.attrs.contains(name)) {
           val oldValue = player.attrs(name)
           var newValue = opt match {
-            case ADD => oldValue + value
-            case SET => value
-            case SUB => if (oldValue - value <= 0) 0 else oldValue - value
-            case MUL => oldValue * value
-            case DIV => math.round(oldValue * 1.0 / value) // 四舍五入
-            case DEL => return Some(
-              gameState.copy(player = player.copy(
-                attrs = player.attrs - name
-              )))
+            case ADD =>
+              out.log(s"属性：$name 上升了 $value")
+              oldValue + value
+            case SET =>
+              out.log(s"属性：$name 被设置为 $value")
+              value
+            case SUB =>
+              if (oldValue - value <= 0) {
+                out.log(s"属性：$name 减少到 0")
+                0
+              } else {
+                out.log(s"属性：$name 减少了 $value")
+                oldValue - value
+              }
+            case MUL =>
+              out.log(s"属性：$name 变成了 $value 倍")
+              oldValue * value
+            case DIV =>
+              out.log(s"属性：$name 变成了 $value 分之一")
+              math.round(oldValue * 1.0 / value) // 四舍五入
+            case DEL =>
+              out.log(s"属性：$name 被删除")
+              return Some(
+                gameState.copy(player = player.copy(
+                  attrs = player.attrs - name
+                )))
           }
           // 越界检查
-          newValue = if (newValue > Int.MaxValue) Int.MaxValue else newValue
+          newValue = if (newValue > Int.MaxValue) {
+            out.log(s"属性：$name ${if (opt == ADD) "已达到最大值" else "设置为"}：$value")
+            Int.MaxValue
+          } else newValue
           Some(
             gameState.copy(player = player.copy(
               attrs = player.attrs + (name -> newValue.toInt)
             )))
         } else {
           opt match {
-            case ADD | SET => Some(
-              gameState.copy(player = player.copy(
-                attrs = player.attrs + (name -> value)
-              )))
-            case _ => None
+            case ADD | SET =>
+              out.log(s"属性：$name ${if (opt == ADD) "已增加" else "设置为"}：$value")
+              Some(
+                gameState.copy(player = player.copy(
+                  attrs = player.attrs + (name -> value)
+                )))
+            case _ => {
+              out.debug(s"属性：$name 不存在，不进行操作")
+              None
+            }
           }
         }
       // ============================= 标签变化效果 =============================
@@ -129,11 +154,16 @@ object PlayerChange {
         opt match {
           case SET =>
             // TODO 解析阶段判断标签的值是否存在
+            out.log(s"标签：$name 设置为：$value")
             Some(gameState.copy(player = player.copy(tags = player.tags + (name -> value.get))))
           case DEL =>
             if (player.tags.contains(name)) {
+              out.log(s"标签：$name 已删除")
               Some(gameState.copy(player = player.copy(tags = player.tags - name)))
-            } else None
+            } else {
+              out.debug(s"标签：$name 不存在，不进行删除")
+              None
+            }
         }
       // ============================= 技能变化效果 =============================
       case SkillChange(name, opt) =>
@@ -141,13 +171,21 @@ object PlayerChange {
         // TODO 解析阶段判断天赋是否存在
         opt match {
           case ADD =>
-            if (player.skills.contains(name)) None else {
+            if (player.skills.contains(name)) {
+              out.debug(s"技能：$name 已存在")
+              None
+            } else {
+              out.print(s"获得技能：$name", GameOutput.Level.SUCCESS)
               Some(gameState.copy(player = player.copy(skills = player.skills + name)))
             }
           case DEL =>
             if (player.skills.contains(name)) {
+              out.print(s"失去技能：$name", GameOutput.Level.WARNING)
               Some(gameState.copy(player = player.copy(skills = player.skills - name)))
-            } else None
+            } else {
+              out.debug(s"技能：$name 不存在，不进行删除")
+              None
+            }
         }
       // ============================= 天赋变化效果 =============================
       case TalentChange(name, opt) =>
@@ -155,13 +193,21 @@ object PlayerChange {
         // TODO 解析阶段判断天赋是否存在
         opt match {
           case ADD =>
-            if (player.talents.contains(name)) None else {
+            if (player.talents.contains(name)) {
+              out.debug(s"天赋：$name 已存在")
+              None
+            } else {
+              out.print(s"获得天赋：$name", GameOutput.Level.SUCCESS)
               Some(gameState.copy(player = player.copy(talents = player.talents + name)))
             }
           case DEL =>
             if (player.talents.contains(name)) {
+              out.print(s"失去天赋：$name", GameOutput.Level.WARNING)
               Some(gameState.copy(player = player.copy(talents = player.talents - name)))
-            } else None
+            } else {
+              out.debug(s"天赋：$name 不存在，不进行删除")
+              None
+            }
         }
       // ============================= Buff变化效果 =============================
       case BuffChange(name, opt, roundCount) =>
@@ -193,7 +239,6 @@ object PlayerChange {
                 } else None
               case None =>
                 out.print(s"已获得 Buff：$name")
-                out.log(s"已获得 Buff：$name")
                 Some(
                   gameState.copy(player = player.copy(
                     buffs = player.buffs + (buff.name -> roundCount.orElse(buff.roundCount))
@@ -213,7 +258,6 @@ object PlayerChange {
                         buffs = if (newRemain <= 0) {
                           // 非正数直接清除
                           out.print(s"Buff：$name 已消失")
-                          out.log(s"Buff：$name，已被清除")
                           player.buffs - name
                         } else {
                           out.print(s"Buff：$name 已缩短")
@@ -232,8 +276,7 @@ object PlayerChange {
       // ============================= 移动轨道效果 =============================
       case PathMove(name) =>
         if (player.path != name) {
-          out.print(s"已解锁人生轨迹：$name")
-          out.log(s"已进入轨道：$name")
+          out.print(s"已解锁人生轨道：$name")
           Some(gameState.copy(player = player.copy(path = name)))
         }
         else None
