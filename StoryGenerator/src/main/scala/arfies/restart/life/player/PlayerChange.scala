@@ -141,10 +141,9 @@ object PlayerChange {
                 gameState.copy(player = player.copy(
                   attrs = player.attrs + (name -> value)
                 )))
-            case _ => {
+            case _ =>
               out.debug(s"属性：$name 不存在，不进行操作")
               None
-            }
           }
         }
       // ============================= 标签变化效果 =============================
