@@ -108,13 +108,13 @@ object Condition {
    * @return 判定结果
    */
   def isMeetCondition(gameState: GameState, condition: Condition): Boolean = {
-    val GameState(roundCount, player, version, seed, eventHistories, achievement) = gameState
+    val GameState(roundCount, player, _, _, eventHistories, _, _) = gameState
     condition match {
       // 立刻执行
       case _: ImmediatelyActivate => true
       // 回合数判定
       case RoundCondition(_, after, before) =>
-        (after, before) match {
+        ((after, before): @unchecked) match {
           case (Some(after), Some(before)) => roundCount >= after && roundCount <= before
           case (Some(after), None) => roundCount >= after
           case (None, Some(before)) => roundCount <= before
