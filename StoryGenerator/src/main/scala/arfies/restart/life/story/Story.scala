@@ -18,7 +18,7 @@ case class Story
   skills: Map[String, Skill],
   achievements: Map[String, Achievement],
   events: Seq[Event],
-  endings: Seq[Ending],
+  endings: Map[String, Ending],
   config: StoryConfig
 )
 

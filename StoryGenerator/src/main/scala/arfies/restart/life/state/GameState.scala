@@ -1,6 +1,5 @@
 package arfies.restart.life.state
 
-import arfies.restart.life.achievement.Achievement
 import arfies.restart.life.player.Player
 
 /**
@@ -16,5 +15,6 @@ case class GameState
   version: String,
   seed: Long,
   eventHistories: List[String], // 经历过的事件历史
-  achievement: Seq[Achievement], // 成就列表
+  achievements: Seq[String], // 成就列表
+  ending: Option[String]
 )
