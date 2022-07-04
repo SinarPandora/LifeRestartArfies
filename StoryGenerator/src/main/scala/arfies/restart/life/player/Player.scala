@@ -1,6 +1,6 @@
 package arfies.restart.life.player
 
-import arfies.restart.life.story.Condition
+import arfies.restart.life.story.{Condition, Effect}
 
 /**
  * 角色
@@ -44,7 +44,7 @@ object Player {
    * @param isTalent 是否为天赋（即可以在开场抽取）
    *                 没有条件的天赋将在开场时自动生效
    */
-  case class Skill(name: String, msg: String, effects: Seq[PlayerChange], activeOn: Condition, isTalent: Boolean)
+  case class Skill(name: String, msg: String, effects: Seq[Effect], activeOn: Condition, isTalent: Boolean)
 
   /**
    * Buff
@@ -58,7 +58,7 @@ object Player {
    * @param doubleApplicable 是否可以叠加
    */
   case class Buff(name: String, msg: String,
-                  effects: Seq[PlayerChange], onAddEffects: Seq[PlayerChange], onLeaveEffects: Seq[PlayerChange],
+                  effects: Seq[Effect], onAddEffects: Seq[Effect], onLeaveEffects: Seq[Effect],
                   activeOn: Condition, roundCount: Option[Int],
                   doubleApplicable: Boolean)
 }

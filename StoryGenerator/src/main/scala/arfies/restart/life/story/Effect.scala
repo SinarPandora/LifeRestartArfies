@@ -1,11 +1,10 @@
-package arfies.restart.life.player
+package arfies.restart.life.story
 
 import arfies.restart.life.output.GameOutput
 import arfies.restart.life.state.GameState
-import arfies.restart.life.story.Story
 
 /**
- * 角色变化
+ * 效果
  * 为了让故事对象能完全转换为 JSON，
  * 因此故事数据不能带有任何 Lambda；
  * 所有变化内容需要在这里使用 Model 表示
@@ -32,9 +31,9 @@ import arfies.restart.life.story.Story
  * Author: sinar
  * 2022/6/23 23:23
  */
-sealed abstract class PlayerChange(val target: String)
+sealed abstract class Effect(val target: String)
 
-object PlayerChange {
+object Effect {
   object Opts {
     val ADD: String = "ADD" // 全部
     val SUB: String = "SUB" // 属性，标签，Buff
@@ -51,52 +50,55 @@ object PlayerChange {
     val TALENT: String = "TALENT"
     val BUFF: String = "BUFF"
     val PATH: String = "PATH"
+    val EVENT: String = "EVENT"
     val ACHIEVEMENT: String = "ACHIEVEMENT"
     val ENDING: String = "ENDING"
     val AND: String = "AND"
     val OR: String = "OR"
   }
 
-  case class NumAttrChange(name: String, value: Int, opt: String) extends PlayerChange(Targets.ATTR)
+  case class NumAttrChange(name: String, value: Int, opt: String) extends Effect(Targets.ATTR)
 
-  case class TageChange(name: String, value: Option[String], opt: String) extends PlayerChange(Targets.TAG)
+  case class TageChange(name: String, value: Option[String], opt: String) extends Effect(Targets.TAG)
 
-  case class SkillChange(name: String, ot: String) extends PlayerChange(Targets.SKILL)
+  case class SkillChange(name: String, opt: String) extends Effect(Targets.SKILL)
 
-  case class TalentChange(name: String, opt: String) extends PlayerChange(Targets.TALENT)
+  case class TalentChange(name: String, opt: String) extends Effect(Targets.TALENT)
 
-  case class BuffChange(name: String, opt: String, roundCount: Option[Int]) extends PlayerChange(Targets.BUFF)
+  case class BuffChange(name: String, opt: String, roundCount: Option[Int]) extends Effect(Targets.BUFF)
 
-  case class PathMove(name: String) extends PlayerChange(Targets.PATH)
+  case class PathMove(name: String) extends Effect(Targets.PATH)
 
-  case class AchievementGet(name: String) extends PlayerChange(Targets.ACHIEVEMENT)
+  case class AchievementGet(name: String) extends Effect(Targets.ACHIEVEMENT)
 
-  case class EndingGet(name: String) extends PlayerChange(Targets.ENDING)
+  case class EventTrigger(name: String) extends Effect(Targets.EVENT)
 
-  case class AndChanges(changes: Seq[PlayerChange]) extends PlayerChange(Targets.AND)
+  case class EndingEnter(name: String) extends Effect(Targets.ENDING)
 
-  case class OrChanges(changes: Seq[PlayerChange]) extends PlayerChange(Targets.OR)
+  case class AndChanges(effects: Seq[Effect]) extends Effect(Targets.AND)
+
+  case class OrChanges(effects: Seq[Effect]) extends Effect(Targets.OR)
 
   /**
    * 起效果
-   * （不处理和与或效果）
+   * （不处理和与或效果，不处理事件触发效果）
    *
    * @param gameState 游戏状态
-   * @param change    角色变化
+   * @param effect    效果
    * @param out       游戏输出
    * @param story     故事对象
    * @return 效果后状态，当无效时返回 None
    */
-  def perform(gameState: GameState, change: PlayerChange, out: GameOutput, story: Story): Option[GameState] = {
-    val GameState(_, player, _, _, _, achievements, ending) = gameState
-    (change: @unchecked) match {
+  def perform(gameState: GameState, effect: Effect, out: GameOutput, story: Story): Option[GameState] = {
+    val GameState(_, player, _, _, _, achievements, ending, _) = gameState
+    (effect: @unchecked) match {
       // ============================= 数值属性变化效果 =============================
       case NumAttrChange(name, value, opt) =>
         // TODO 解析阶段判断属性是否存在
         import Opts.*
         if (player.attrs.contains(name)) {
           val oldValue = player.attrs(name)
-          var newValue = opt match {
+          var newValue: Long = opt match {
             case ADD =>
               out.log(s"属性：$name 上升了 $value")
               oldValue + value
@@ -291,7 +293,7 @@ object PlayerChange {
           Some(gameState.copy(achievements = achievements :+ name))
         }
       // ============================= 获得结局效果 =============================
-      case EndingGet(name) =>
+      case EndingEnter(name) =>
         if (ending.isEmpty) {
           // TODO 解析阶段判断结局是否存在
           val ending = story.endings(name)
@@ -301,6 +303,9 @@ object PlayerChange {
           Some(gameState.copy(ending = Some(name)))
         }
         else None
+      case _: EventTrigger | _: AndChanges | _: OrChanges =>
+        out.log(s"不支持的效果类型，该效果应在回合中处理：$effect", GameOutput.Level.DANGER)
+        None
     }
   }
 }

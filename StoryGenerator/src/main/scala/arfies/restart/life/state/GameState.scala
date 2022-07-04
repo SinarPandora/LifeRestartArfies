@@ -16,5 +16,6 @@ case class GameState
   seed: Long,
   eventHistories: List[String], // 经历过的事件历史
   achievements: Seq[String], // 成就列表
-  ending: Option[String]
+  ending: Option[String],
+  roundEventScope: Seq[String] // 当回合事件范围
 )

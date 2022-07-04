@@ -1,7 +1,5 @@
 package arfies.restart.life.story
 
-import arfies.restart.life.player.PlayerChange
-
 /**
  * 事件
  *
@@ -12,9 +10,9 @@ case class Event
 (
   name: String,
   msg: String,
-  roundGreatEqual: Option[Int],
-  roundLessThan: Option[Int],
+  weight: Int,
   includeCond: Condition,
-  effects: Seq[PlayerChange],
-  path: Option[Seq[String]]
+  effects: Seq[Effect],
+  path: Seq[String],
+  nextEventScope: Seq[String] // 下回合事件将从这之中抽取
 )
