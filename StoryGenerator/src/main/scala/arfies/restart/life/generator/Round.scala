@@ -1,5 +1,6 @@
 package arfies.restart.life.generator
 
+import arfies.restart.life.achievement.Achievement
 import arfies.restart.life.player.Player
 import arfies.restart.life.player.Player.Skill
 import arfies.restart.life.state.GameState
@@ -49,6 +50,7 @@ class Round(ctx: StoryContext, startState: GameState) {
    * 1. Buff
    * 2. 天赋
    * 3. 技能
+   * 4. 成就扫描
    * *. 全体 buff 减 1 回合，清理过期 buff
    *
    * @param state 游戏状态
@@ -57,9 +59,11 @@ class Round(ctx: StoryContext, startState: GameState) {
   private def startPhase(state: GameState): GameState = {
     val activateBuffs: Map[Player.Buff, Option[Int]] = pickBuffs(state, Condition.Timing.BEFORE_ROUND)
     val activateTalentAndSkills: Set[Skill] = pickTalentAndSkill(state, Condition.Timing.BEFORE_ROUND)
+    val possibleAchievements: Seq[Achievement] = pickAchievement(state, Condition.Timing.BEFORE_ROUND)
     state
       .pipe(buffScan(activateBuffs, _))
       .pipe(skillAndTalentScan(activateTalentAndSkills, _))
+      .pipe(achievementScan(possibleAchievements, _))
   }
 
   /**
@@ -85,7 +89,8 @@ class Round(ctx: StoryContext, startState: GameState) {
    * 1. Buff
    * 2. 天赋
    * 3. 技能
-   * 4. 结局
+   * 4. 成就扫描
+   * 5. 结局（以及死亡成就）
    * *. 自动保存
    *
    * @param state 游戏状态
@@ -94,9 +99,11 @@ class Round(ctx: StoryContext, startState: GameState) {
   private def endPhase(state: GameState): GameState = {
     val activateBuffs: Map[Player.Buff, Option[Int]] = pickBuffs(state, Condition.Timing.AFTER_ROUND)
     val activateTalentAndSkills: Set[Skill] = pickTalentAndSkill(state, Condition.Timing.AFTER_ROUND)
+    val possibleAchievements: Seq[Achievement] = pickAchievement(state, Condition.Timing.AFTER_ROUND)
     state
       .pipe(buffScan(activateBuffs, _))
       .pipe(skillAndTalentScan(activateTalentAndSkills, _))
+      .pipe(achievementScan(possibleAchievements, _))
       .pipe(endingScan)
       .tap { state =>
         if (roundCount % 5 == 0) loader.save(state)
@@ -369,15 +376,57 @@ class Round(ctx: StoryContext, startState: GameState) {
    * @param gameState 游戏状态
    * @return 结果状态
    */
-  def endingScan(gameState: GameState): GameState = {
+  private def endingScan(gameState: GameState): GameState = {
     if (gameState.ending.nonEmpty) return gameState
     story.endings
       .values
       .find { ending =>
         Condition.isMeetCondition(gameState, ending.condition)
       }
-      .map(ending => gameState.copy(ending = Some(ending.name)))
+      .map { ending =>
+        if (ending.achievement.nonEmpty && !gameState.achievements.contains(ending.achievement.get)) {
+          // 新成就
+          val achievement = story.achievements(ending.achievement.get)
+          Achievement.show(achievement, out)
+          gameState.copy(ending = Some(ending.name), achievements = gameState.achievements :+ achievement.name)
+        } else {
+          gameState.copy(ending = Some(ending.name))
+        }
+      }
       .getOrElse(gameState)
+  }
+
+  /**
+   * 检出可能触发的成就
+   *
+   * @param gameState 游戏状态
+   * @param timing    触发时机
+   * @param excludes  排除列表
+   * @return 成就集合
+   */
+  private def pickAchievement(gameState: GameState, timing: String, excludes: Set[String] = Set.empty): Seq[Achievement] = {
+    for {
+      name <- gameState.achievements
+      achievement <- story.achievements.get(name)
+      if achievement.condition.timing == timing && !excludes.contains(name) && !gameState.achievements.contains(name)
+    } yield achievement
+  }
+
+  /**
+   * 成就扫描
+   *
+   * @param achievements 成就列表
+   * @param gameState    游戏状态
+   * @return 结果状态
+   */
+  private def achievementScan(achievements: Seq[Achievement], gameState: GameState): GameState = {
+    achievements
+      .filter {
+        case Achievement(_, _, condition) => Condition.isMeetCondition(gameState, condition)
+      }
+      .tapEach(Achievement.show(_, out))
+      .map(_.name)
+      .pipe(names => gameState.copy(achievements = gameState.achievements ++ names))
   }
 }
 
