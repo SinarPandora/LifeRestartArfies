@@ -121,18 +121,72 @@ class Round(ctx: StoryContext, startState: GameState) {
         // TODO 解析阶段判断事件是否存在
         performEvent(gameState, story.events(name))
       case Effect.AndChanges(effects) =>
-        val after = effects.foldLeft(gameState)((state, effect) =>
-          performEffect(effect, state, s"$tpe 的子效果开始处理：$effect")
-            .getOrElse(state))
+        val after = effects.foldLeft(gameState)(performEffectOrKeep(s"$tpe 的子效果开始处理：$effect"))
         if (after != gameState) Some(after) else None
       case Effect.OrChanges(effects) =>
         val pick = effects(random.nextInt(effects.length))
         performEffect(pick, gameState, s"从$tpe 的效果组中选择了：$pick，开始处理")
+      case effect@Effect.BuffChange(name, opt, _) =>
+        val after = Effect.perform(gameState, effect, out, story)
+        opt match {
+          case Effect.Opts.ADD =>
+            if (!gameState.player.buffs.contains(name) && after.nonEmpty) {
+              // 如果 Buff 是新加的
+              // 无论入场效果是否有效，对 Buff 的效果已经触发成功了
+              Some(
+                story.buffs(name)
+                  .onAddEffects
+                  .foldLeft(after.get)(
+                    performEffectOrKeep(s"Buff_${name}的入场效果")
+                  )
+              )
+            } else after
+          case Effect.Opts.SUB =>
+            after match {
+              case Some(state) =>
+                if (!state.player.buffs.contains(name)) {
+                  // 起效果，并且 Buff 消失了
+                  // 无论离场效果是否有效，对 Buff 的效果已经触发成功了
+                  Some(
+                    story.buffs(name)
+                      .onLeaveEffects
+                      .foldLeft(after.get)(
+                        performEffectOrKeep(s"Buff_${name}的离场效果")
+                      )
+                  )
+                } else after
+              case None => after
+            }
+          case Effect.Opts.DEL =>
+            if (after.nonEmpty) {
+              // 如果去除 Buff 效果触发成功
+              // 无论离场效果是否有效，Buff 整体已经被去除了
+              Some(
+                story.buffs(name)
+                  .onLeaveEffects
+                  .foldLeft(after.get)(
+                    performEffectOrKeep(s"Buff_${name}的离场效果")
+                  )
+              )
+            } else after
+        }
       case _ => Effect.perform(gameState, effect, out, story)
     }
     if (afterState.isEmpty) out.debug(s"$tpe 被跳过")
     afterState
   }
+
+  /**
+   * 触发效果，在无效时使用原值
+   * 用于下面的各种的 foldLeft Lambda
+   *
+   * @param tpe       效果类型描述
+   * @param gameState 游戏状态
+   * @param effect    效果
+   * @return 结果状态
+   */
+  private def performEffectOrKeep(tpe: String)(gameState: GameState, effect: Effect): GameState =
+    performEffect(effect, gameState, tpe).getOrElse(gameState)
 
   /**
    * 检出 Buff
@@ -162,17 +216,18 @@ class Round(ctx: StoryContext, startState: GameState) {
       case (gameState, (buff, roundCountOpt)) =>
         // 二次校验 Buff 是否存在
         if (gameState.player.buffs.contains(buff.name)) {
-          val afterState = buff.effects.foldLeft(gameState)((state, effect) => {
-            performEffect(effect, state, s"Buff_${buff.name}")
-              .getOrElse(state)
-          })
+          val afterState = buff.effects.foldLeft(gameState)(performEffectOrKeep(s"Buff_${buff.name}"))
           val player = afterState.player
           roundCountOpt.map(_ - 1) match {
             case Some(remain) =>
-              afterState.copy(player = afterState.player.copy(buffs =
-                if (remain <= 0) player.buffs - buff.name
-                else player.buffs + (buff.name -> Some(remain))
-              ))
+              if (remain < 0) {
+                afterState.copy(player = afterState.player.copy(buffs = player.buffs - buff.name))
+                  .pipe {
+                    buff.onLeaveEffects.foldLeft(_)(performEffectOrKeep(s"Buff_${buff.name}的离场效果"))
+                  }
+              } else {
+                afterState.copy(player = afterState.player.copy(buffs = player.buffs + (buff.name -> Some(remain))))
+              }
             case None => afterState
           }
         } else gameState
@@ -211,10 +266,9 @@ class Round(ctx: StoryContext, startState: GameState) {
       case (gameState, skill) =>
         val stillExist = (if (skill.isTalent) gameState.player.talents else gameState.player.skills).contains(skill.name)
         if (stillExist) {
-          skill.effects.foldLeft(gameState)((state, effect) => {
-            performEffect(effect, state, s"${if (skill.isTalent) "天赋" else "技能"}_${skill.name}")
-              .getOrElse(state)
-          })
+          skill.effects.foldLeft(gameState)(
+            performEffectOrKeep(s"${if (skill.isTalent) "天赋" else "技能"}_${skill.name}")
+          )
         } else gameState
     }
   }
@@ -301,10 +355,11 @@ class Round(ctx: StoryContext, startState: GameState) {
   private def performEvent(gameState: GameState, event: Event): Option[GameState] = {
     if (gameState.ending.nonEmpty) return None
     out.print(event.msg)
-    val after = event.effects.foldLeft(gameState)((state, effect) => {
-      performEffect(effect, state, s"事件_${event.name}")
-        .getOrElse(state)
-    }).copy(roundEventScope = event.nextEventScope) // TODO 解析阶段去重
+    val after = event.effects
+      .foldLeft(gameState)(
+        performEffectOrKeep(s"事件_${event.name}")
+      )
+      .copy(roundEventScope = event.nextEventScope) // TODO 解析阶段去重
     if (gameState == after) None else Some(after)
   }
 
