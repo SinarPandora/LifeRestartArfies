@@ -1,9 +1,8 @@
 package arfies.restart.life.excel.reader.sheet
 
 import arfies.restart.life.excel.ir.StoryConfigIR
+import arfies.restart.life.excel.util.XLSXUtil
 import org.apache.poi.ss.usermodel.Row
-
-import scala.collection.mutable.ListBuffer
 
 /**
  * 配置页
@@ -11,13 +10,17 @@ import scala.collection.mutable.ListBuffer
  * Author: sinar
  * 2022/7/6 22:25
  */
-object Sheet0_Config extends SheetReader[StoryConfigIR]("[1]基本配置") {
+object Sheet0_Config extends SheetReader[StoryConfigIR]("[1]基本配置", false) {
   /**
-   * 行扫描
+   * 读取行
    *
-   * @param row       行对象
-   * @param resultSet 结果集
-   * @param errors    错误
+   * @param row 行对象
+   * @return 读取结果
    */
-  override def rowScan(row: Row, resultSet: ListBuffer[StoryConfigIR], errors: ListBuffer[String]): Unit = ???
+  @inline override def readRow(row: Row): Option[Either[String, StoryConfigIR]] = Some {
+    XLSXUtil.getCellValueAsStr(row.getCell(0)) match {
+      case Some(name) => Right(StoryConfigIR(name, XLSXUtil.getCellValueAsStr(row.getCell(1))))
+      case None => Left("检测到没有名字的配置项")
+    }
+  }
 }

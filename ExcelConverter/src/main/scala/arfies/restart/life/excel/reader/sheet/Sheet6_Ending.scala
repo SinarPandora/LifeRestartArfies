@@ -1,9 +1,10 @@
 package arfies.restart.life.excel.reader.sheet
 
 import arfies.restart.life.excel.ir.EndingIR
+import arfies.restart.life.excel.util.XLSXUtil
 import org.apache.poi.ss.usermodel.Row
 
-import scala.collection.mutable.ListBuffer
+import scala.util.Try
 
 /**
  * 结局页
@@ -13,11 +14,22 @@ import scala.collection.mutable.ListBuffer
  */
 object Sheet6_Ending extends SheetReader[EndingIR]("[7]结局") {
   /**
-   * 行扫描
+   * 读取行
    *
-   * @param row       行对象
-   * @param resultSet 结果集
-   * @param errors    错误
+   * @param row 行对象
+   * @return 读取结果
    */
-  override def rowScan(row: Row, resultSet: ListBuffer[EndingIR], errors: ListBuffer[String]): Unit = ???
+  override def readRow(row: Row): Option[Either[String, EndingIR]] = {
+    // 跳过所有没有名字的行
+    XLSXUtil.getCellValueAsStr(row.getCell(0)).map { idStr =>
+      for {
+        id <- Try(idStr.toInt).toEither.left.map(_ => "结局编号必须是整数")
+        name <- XLSXUtil.getCellValueOrErr(row.getCell(1), "需提供结局名")
+        timing <- Right(XLSXUtil.getCellValueAsStr(row.getCell(2)))
+        condition <- Right(XLSXUtil.getCellValueAsStr(row.getCell(3)))
+        achievement <- Right(XLSXUtil.getCellValueAsStr(row.getCell(4)))
+        msg <- XLSXUtil.getCellValueOrErr(row.getCell(5), "需提供结局提示语")
+      } yield EndingIR(id, name, timing, condition, achievement, msg)
+    }
+  }
 }

@@ -11,8 +11,10 @@ case class EventIR
   name: String,
   msg: String,
   weight: Int,
-  includeCond: String,
-  effects: String,
-  path: String,
-  nextEventScope: String
+  afterRound: Option[Int],
+  beforeRound: Option[Int],
+  includeCond: Option[String],
+  effects: Option[String],
+  path: Option[String],
+  nextEventScope: Option[String]
 )

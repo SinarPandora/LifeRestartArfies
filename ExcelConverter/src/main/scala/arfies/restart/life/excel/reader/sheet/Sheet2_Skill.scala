@@ -1,9 +1,8 @@
 package arfies.restart.life.excel.reader.sheet
 
 import arfies.restart.life.excel.ir.SkillIR
+import arfies.restart.life.excel.util.XLSXUtil
 import org.apache.poi.ss.usermodel.Row
-
-import scala.collection.mutable.ListBuffer
 
 /**
  * 技能页
@@ -13,11 +12,22 @@ import scala.collection.mutable.ListBuffer
  */
 object Sheet2_Skill extends SheetReader[SkillIR]("[3]技能天赋") {
   /**
-   * 行扫描
+   * 读取行
    *
-   * @param row       行对象
-   * @param resultSet 结果集
-   * @param errors    错误
+   * @param row 行对象
+   * @return 读取结果
    */
-  override def rowScan(row: Row, resultSet: ListBuffer[SkillIR], errors: ListBuffer[String]): Unit = ???
+  @inline override def readRow(row: Row): Option[Either[String, SkillIR]] = {
+    // 跳过所有没有名字的行
+    // TODO v2 解析属性变化
+    XLSXUtil.getCellValueAsStr(row.getCell(0)).map { name =>
+      for {
+        msg <- Right(XLSXUtil.getCellValueOrElse(row.getCell(1), "无介绍"))
+        timing <- XLSXUtil.getCellValueOrErr(row.getCell(2), "需设置技能判定时机")
+        condition <- Right(XLSXUtil.getCellValueAsStr(row.getCell(4)))
+        effects <- XLSXUtil.getCellValueOrErr(row.getCell(5), "需设置技能效果")
+        isTalent <- Right(XLSXUtil.getCellValueOrElse(row.getCell(6), "否").trim == "是")
+      } yield SkillIR(name, msg, effects, timing, condition, isTalent)
+    }
+  }
 }

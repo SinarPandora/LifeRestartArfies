@@ -11,6 +11,6 @@ case class BuffIR
 (
   name: String, msg: String,
   effects: Option[String], onAddEffects: Option[String], onLeaveEffects: Option[String],
-  activeOn: String, roundCount: Option[Int],
+  timing: String, condition: Option[String], roundCount: Option[Int],
   doubleApplicable: Boolean
 )
