@@ -46,9 +46,11 @@ lazy val excelConverter: Project = (project in file("ExcelConverter"))
     scalacOptions ++= compileOptions,
     assembly / assemblyJarName := "excel-cvt.jar",
     libraryDependencies ++= Seq(
-      "me.tongfei" % "progressbar" % "0.9.3",
       "org.apache.poi" % "poi" % "5.2.2",
-      "org.json4s" %% "json4s-jackson" % "4.0.5"
+      "org.apache.poi" % "poi-ooxml" % "5.2.2",
+      "me.tongfei" % "progressbar" % "0.9.3",
+      "org.json4s" %% "json4s-jackson" % "4.0.5",
+      "com.typesafe" % "config" % "1.4.2"
     )
   )
   .dependsOn(storyGenerator)

@@ -23,5 +23,5 @@ object StorySerializer {
    * @param story 故事对象
    * @return 转换结果
    */
-  def serialize(out: Writer)(story: Story): Writer = write(story, out)
+  def serialize(out: Writer, story: Story): Writer = write(story, out)
 }

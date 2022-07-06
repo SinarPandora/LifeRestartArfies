@@ -6,7 +6,6 @@ import arfies.restart.life.excel.writer.StorySerializer
 
 import java.io.{BufferedWriter, File, FileWriter}
 import scala.util.Using
-import scala.util.chaining.*
 
 /**
  * Excel 解析器
@@ -34,11 +33,21 @@ object ExcelConverter extends App {
     sys.exit(1)
   } else {
     Using(new BufferedWriter(new FileWriter(new File(args(1))))) { out =>
-      args(0)
-        .pipe(ExcelReader.read)
-        .pipe(ExcelParser.parse)
-        .pipe(StorySerializer.serialize(out))
-        .pipe(_.flush())
+      val writer = for {
+        excelData <- ExcelReader.read(args(0))
+        story <- ExcelParser.parse(excelData)
+        writer = StorySerializer.serialize(out, story)
+      } yield writer
+      writer match {
+        case Left(errMsgs) =>
+          Console.err.println(
+            s"""解析出错，错误如下：
+              |${errMsgs.mkString("\n")}""".stripMargin)
+          sys.exit(1)
+        case Right(writer) =>
+          writer.flush()
+          Console.println("解析成功！")
+      }
     }
   }
 }

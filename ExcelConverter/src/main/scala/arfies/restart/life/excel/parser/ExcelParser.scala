@@ -11,7 +11,7 @@ import arfies.restart.life.story.Story
  */
 object ExcelParser {
 
-  def parse(data: ExcelData): Story = {
+  def parse(data: ExcelData): Either[Seq[String], Story] = {
     ???
   }
 }
