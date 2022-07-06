@@ -9,7 +9,7 @@ import arfies.restart.life.story.Condition
  * Author: sinar
  * 2022/6/21 22:04
  */
-case class Achievement(name: String, msg: Option[String], condition: Condition)
+case class Achievement(name: String, msg: Option[String], condition: Option[Condition])
 
 object Achievement {
   /**

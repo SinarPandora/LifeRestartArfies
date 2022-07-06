@@ -6,4 +6,4 @@ package arfies.restart.life.story
  * Author: sinar
  * 2022/6/22 22:56
  */
-case class Ending(id: Int, name: String, condition: Condition, achievement: Option[String], msg: String)
+case class Ending(id: Int, name: String, condition: Option[Condition], achievement: Option[String], msg: String)

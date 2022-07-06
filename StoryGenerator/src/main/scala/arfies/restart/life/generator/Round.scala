@@ -381,7 +381,7 @@ class Round(ctx: StoryContext, startState: GameState) {
     story.endings
       .values
       .find { ending =>
-        Condition.isMeetCondition(gameState, ending.condition)
+        ending.condition.exists(Condition.isMeetCondition(gameState, _))
       }
       .map { ending =>
         if (ending.achievement.nonEmpty && !gameState.achievements.contains(ending.achievement.get)) {
@@ -408,7 +408,8 @@ class Round(ctx: StoryContext, startState: GameState) {
     for {
       name <- gameState.achievements
       achievement <- story.achievements.get(name)
-      if achievement.condition.timing == timing && !excludes.contains(name) && !gameState.achievements.contains(name)
+      condition <- achievement.condition
+      if condition.timing == timing && !excludes.contains(name) && !gameState.achievements.contains(name)
     } yield achievement
   }
 
@@ -422,7 +423,7 @@ class Round(ctx: StoryContext, startState: GameState) {
   private def achievementScan(achievements: Seq[Achievement], gameState: GameState): GameState = {
     achievements
       .filter {
-        case Achievement(_, _, condition) => Condition.isMeetCondition(gameState, condition)
+        case Achievement(_, _, condition) => condition.exists(Condition.isMeetCondition(gameState, _)) // 无条件的视为只通过效果触发
       }
       .tapEach(Achievement.show(_, out))
       .map(_.name)
