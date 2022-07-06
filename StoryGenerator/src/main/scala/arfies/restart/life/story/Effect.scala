@@ -1,5 +1,6 @@
 package arfies.restart.life.story
 
+import arfies.restart.life.achievement.Achievement
 import arfies.restart.life.output.GameOutput
 import arfies.restart.life.state.GameState
 
@@ -287,9 +288,7 @@ object Effect {
         else {
           // TODO 解析阶段判断成就是否存在
           val achievement = story.achievements(name)
-          out.toast(
-            s"""获得成就：$name
-               |${achievement.msg}""".stripMargin, GameOutput.Level.SUCCESS)
+          Achievement.show(achievement, out)
           Some(gameState.copy(achievements = achievements :+ name))
         }
       // ============================= 获得结局效果 =============================

@@ -29,11 +29,12 @@ object Player {
    * 属性
    *
    * @param name           属性名
+   * @param initMax        初始化可设最大值（在可定制时生效）
    * @param attrType       类型，数值或标签
    * @param isCustomizable 是否可定制（是否可 Roll）
    * @param isPinOnHub     是否始终显示在事件列表上方的 HUB
    */
-  case class Attr(name: String, attrType: String, isCustomizable: Boolean, isPinOnHub: Boolean)
+  case class Attr(name: String, initMax: Option[Int], attrType: String, isCustomizable: Boolean, isPinOnHub: Boolean)
 
   /**
    * 技能（也表示天赋）

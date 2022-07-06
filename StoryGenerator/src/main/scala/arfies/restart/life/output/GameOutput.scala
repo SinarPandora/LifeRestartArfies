@@ -20,10 +20,11 @@ trait GameOutput {
   /**
    * 弹出吐司消息（流程外）
    *
+   * @param title 标题
    * @param msg   消息
    * @param level 消息等级
    */
-  def toast(msg: String, level: String = Level.INFO): Unit
+  def toast(title: String, msg: Option[String], level: String = Level.INFO): Unit
 
   /**
    * 打印日志
