@@ -16,5 +16,6 @@ case class EventIR
   includeCond: Option[String],
   effects: Option[String],
   path: Option[String],
-  nextEventScope: Option[String]
+  nextEventScope: Option[String],
+  rowCount: Int
 )

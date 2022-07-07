@@ -6,4 +6,4 @@ package arfies.restart.life.excel.ir
  * Author: sinar
  * 2022/7/4 22:02
  */
-case class StoryConfigIR(key: String, value: Option[String])
+case class StoryConfigIR(key: String, value: Option[String], rowCount: Int)
