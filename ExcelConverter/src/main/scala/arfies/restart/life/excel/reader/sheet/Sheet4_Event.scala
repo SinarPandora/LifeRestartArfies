@@ -34,7 +34,7 @@ object Sheet4_Event extends SheetReader[EventIR]("[5]事件列表") {
         beforeRound <- Try(XLSXUtil.getCellValueAsStr(row.getCell(7)).map(_.toInt))
           .toEither.left.map(_ => "年龄上限需设置为整数（或不设置）") // TODO i18n（v3）
         includeCond <- Right(XLSXUtil.getCellValueAsStr(row.getCell(8)))
-      } yield EventIR(name, msg, weight, afterRound, beforeRound, includeCond, effects, path, nextEventScope)
+      } yield EventIR(name, msg, weight, afterRound, beforeRound, includeCond, effects, path, nextEventScope, row.getRowNum + 1)
     }
   }
 }

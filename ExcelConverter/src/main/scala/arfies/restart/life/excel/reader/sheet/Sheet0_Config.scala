@@ -19,7 +19,7 @@ object Sheet0_Config extends SheetReader[StoryConfigIR]("[1]基本配置", false
    */
   @inline override def readRow(row: Row): Option[Either[String, StoryConfigIR]] = Some {
     XLSXUtil.getCellValueAsStr(row.getCell(0)) match {
-      case Some(name) => Right(StoryConfigIR(name, XLSXUtil.getCellValueAsStr(row.getCell(1))))
+      case Some(name) => Right(StoryConfigIR(name, XLSXUtil.getCellValueAsStr(row.getCell(1)), row.getRowNum + 1))
       case None => Left("检测到没有名字的配置项")
     }
   }

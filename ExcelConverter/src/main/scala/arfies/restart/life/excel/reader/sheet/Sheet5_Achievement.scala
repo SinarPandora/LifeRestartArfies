@@ -25,6 +25,7 @@ object Sheet5_Achievement extends SheetReader[AchievementIR]("[6]成就") {
         msg = XLSXUtil.getCellValueOrElse(row.getCell(1), "你获得了一个成就"), // TODO 配置化
         timing = XLSXUtil.getCellValueAsStr(row.getCell(2)),
         condition = XLSXUtil.getCellValueAsStr(row.getCell(3)),
+        rowCount = row.getRowNum + 1
       ))
     }
   }

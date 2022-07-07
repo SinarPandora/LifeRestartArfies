@@ -36,7 +36,7 @@ abstract class SheetReader[T](name: String, hasHeader: Boolean = true) {
         .setInitialMax(maxRowCount))
       .forEachRemaining { row =>
         readRow(row).foreach {
-          case Left(error) => errors += s"工作表${name}第${row.getRowNum}行：$error"
+          case Left(error) => errors += s"工作表${name}第${row.getRowNum + 1}行：$error"
           case Right(value) => resultSet += value
         }
       }

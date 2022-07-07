@@ -29,7 +29,7 @@ object Sheet6_Ending extends SheetReader[EndingIR]("[7]结局") {
         condition <- Right(XLSXUtil.getCellValueAsStr(row.getCell(3)))
         achievement <- Right(XLSXUtil.getCellValueAsStr(row.getCell(4)))
         msg <- XLSXUtil.getCellValueOrErr(row.getCell(5), "需提供结局提示语")
-      } yield EndingIR(id, name, timing, condition, achievement, msg)
+      } yield EndingIR(id, name, timing, condition, achievement, msg, row.getRowNum + 1)
     }
   }
 }

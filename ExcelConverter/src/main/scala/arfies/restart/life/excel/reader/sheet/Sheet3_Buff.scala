@@ -33,7 +33,7 @@ object Sheet3_Buff extends SheetReader[BuffIR]("[4]Buff") {
         roundCount <- Try(XLSXUtil.getCellValueAsStr(row.getCell(8)).map(_.toInt))
           .toEither.left.map(_ => "初始回合数应设置为整数（或不设置）")
         doubleApplicable <- Right(XLSXUtil.getCellValueOrElse(row.getCell(9), "是").trim == "是")
-      } yield BuffIR(name, msg, effects, onAddEffects, onLeaveEffects, timing, condition, roundCount, doubleApplicable)
+      } yield BuffIR(name, msg, effects, onAddEffects, onLeaveEffects, timing, condition, roundCount, doubleApplicable, row.getRowNum + 1)
     }
   }
 }
