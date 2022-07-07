@@ -23,5 +23,5 @@ case class Story
 )
 
 object Story {
-  case class StoryConfig(availableAttrPoints: Int, defaultLifePath: String)
+  case class StoryConfig(availableAttrPoints: Int, defaultLifePath: String, startRoundCount: Int)
 }
