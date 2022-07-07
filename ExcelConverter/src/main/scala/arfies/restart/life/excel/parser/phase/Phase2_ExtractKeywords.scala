@@ -22,7 +22,8 @@ object Phase2_ExtractKeywords extends ParserPhase[StoryConfig, ConfigAndKeywords
     rawBuffs: Map[String, BuffIR],
     rawEvents: Map[String, EventIR],
     rawAchievements: Map[String, AchievementIR],
-    rawEndings: Map[String, EndingIR]
+    rawEndings: Map[String, EndingIR],
+    keywords: Keywords
   )
 
   /**
@@ -32,18 +33,35 @@ object Phase2_ExtractKeywords extends ParserPhase[StoryConfig, ConfigAndKeywords
    * @param from 传入数据
    * @return 传出数据
    */
+  //noinspection DuplicatedCode
   override def apply(data: ExcelReader.ExcelData, from: StoryConfig): Either[Seq[String], ConfigAndKeywords] = data match {
-    case ExcelReader.ExcelData(_, attrs, skillOrTalent, buffs, events, achievements, endings) =>
+    case ExcelReader.ExcelData(_, attrSeq, skillOrTalent, buffs, events, achievements, endings) =>
+      val attrs = attrSeq.map(it => it.name -> it).toMap
+      val rawSkills = skillOrTalent.filterNot(_.isTalent).map(it => it.name -> it).toMap
+      val rawTalents = skillOrTalent.filter(_.isTalent).map(it => it.name -> it).toMap
+      val rawBuffs = buffs.map(it => it.name -> it).toMap
+      val rawEvents = events.map(it => it.name -> it).toMap
+      val rawAchievements = achievements.map(it => it.name -> it).toMap
+      val rawEndings = endings.map(it => it.name -> it).toMap
       Right {
         ConfigAndKeywords(
           config = from,
-          attrs = attrs.map(it => it.name -> it).toMap,
-          rawSkills = skillOrTalent.filterNot(_.isTalent).map(it => it.name -> it).toMap,
-          rawTalents = skillOrTalent.filter(_.isTalent).map(it => it.name -> it).toMap,
-          rawBuffs = buffs.map(it => it.name -> it).toMap,
-          rawEvents = events.map(it => it.name -> it).toMap,
-          rawAchievements = achievements.map(it => it.name -> it).toMap,
-          rawEndings = endings.map(it => it.name -> it).toMap,
+          attrs = attrs,
+          rawSkills = rawSkills,
+          rawTalents = rawTalents,
+          rawBuffs = rawBuffs,
+          rawEvents = rawEvents,
+          rawAchievements = rawAchievements,
+          rawEndings = rawEndings,
+          keywords = Keywords(
+            attrs = attrs.keySet,
+            skills = rawSkills.keySet,
+            talents = rawTalents.keySet,
+            buffs = rawBuffs.keySet,
+            events = rawEvents.keySet,
+            achievements = rawAchievements.keySet,
+            endings = rawEndings.keySet,
+          )
         )
       }
   }

@@ -25,7 +25,8 @@ object Phase6_ParseBuffs extends ParserPhase[ParsedSkillsAndTalents, ParsedBuffs
     buffs: Map[String, Buff],
     rawEvents: Map[String, EventIR],
     achievements: Map[String, Achievement],
-    endings: Map[String, Ending]
+    endings: Map[String, Ending],
+    keywords: Keywords
   )
 
   /**

@@ -24,7 +24,8 @@ object Phase3_ParseAchievements extends ParserPhase[ConfigAndKeywords, ParsedAch
     rawBuffs: Map[String, BuffIR],
     rawEvents: Map[String, EventIR],
     achievements: Map[String, Achievement],
-    rawEndings: Map[String, EndingIR]
+    rawEndings: Map[String, EndingIR],
+    keywords: Keywords
   )
 
   /**

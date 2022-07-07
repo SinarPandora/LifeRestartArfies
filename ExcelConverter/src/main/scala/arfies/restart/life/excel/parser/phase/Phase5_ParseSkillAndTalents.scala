@@ -25,7 +25,8 @@ object Phase5_ParseSkillAndTalents extends ParserPhase[ParsedEndings, ParsedSkil
     rawBuffs: Map[String, BuffIR],
     rawEvents: Map[String, EventIR],
     achievements: Map[String, Achievement],
-    endings: Map[String, Ending]
+    endings: Map[String, Ending],
+    keywords: Keywords
   )
 
   /**
