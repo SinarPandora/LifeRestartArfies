@@ -18,4 +18,4 @@ case class EventIR
   path: Option[String],
   nextEventScope: Option[String],
   rowCount: Int
-)
+) extends Named

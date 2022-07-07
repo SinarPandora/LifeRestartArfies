@@ -6,4 +6,13 @@ package arfies.restart.life.excel.ir
  * Author: sinar
  * 2022/7/4 22:26
  */
-case class SkillIR(name: String, msg: String, effects: String, timing: String, condition: Option[String], isTalent: Boolean, rowCount: Int)
+case class SkillIR
+(
+  name: String,
+  msg: String,
+  effects: String,
+  timing: String,
+  condition: Option[String],
+  isTalent: Boolean,
+  rowCount: Int
+) extends Named
