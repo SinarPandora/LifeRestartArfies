@@ -39,6 +39,21 @@ lazy val jvmFacade: Project = (project in file("Facade/JVM"))
   )
   .dependsOn(storyGenerator)
 
+lazy val parserCommon: Project = (project in file("Parser/Common"))
+  .settings(
+    name := "Parser_Common",
+    scalacOptions ++= compileOptions
+  )
+  .dependsOn(storyGenerator)
+
+lazy val condParser: Project = (project in file("Parser/ConditionParser"))
+  .settings(
+    name := "Condition_Parser",
+    scalacOptions ++= compileOptions,
+    libraryDependencies ++= jvmTest.value
+  )
+  .dependsOn(storyGenerator, parserCommon)
+
 lazy val excelConverter: Project = (project in file("ExcelConverter"))
   .enablePlugins(AssemblyPlugin)
   .settings(
@@ -53,7 +68,7 @@ lazy val excelConverter: Project = (project in file("ExcelConverter"))
       "com.typesafe" % "config" % "1.4.2"
     )
   )
-  .dependsOn(storyGenerator)
+  .dependsOn(storyGenerator, condParser)
 
 lazy val compileOptions: Seq[String] = Seq(
   "-Xsource:3",
@@ -67,3 +82,13 @@ lazy val compileOptions: Seq[String] = Seq(
   "-encoding",
   "utf8"
 )
+
+lazy val jvmTest: Def.Initialize[Seq[ModuleID]] = Def.setting(Seq(
+  "org.scalactic" %% "scalactic" % "3.2.13",
+  "org.scalatest" %% "scalatest" % "3.2.13" % "test"
+))
+
+lazy val jsTest: Def.Initialize[Seq[ModuleID]] = Def.setting(Seq(
+  "org.scalactic" %%% "scalactic" % "3.2.13",
+  "org.scalatest" %%% "scalatest" % "3.2.13" % "test"
+))
