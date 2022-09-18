@@ -1,8 +1,8 @@
-package arfies.restart.life.condition.parser
+package arfies.restart.life.parser.condition
 
-import arfies.restart.life.condition.parser.Results.Token
-import arfies.restart.life.condition.parser.Statements.*
-import arfies.restart.life.exception.SyntaxError
+import arfies.restart.life.parser.condition.Results.Token
+import arfies.restart.life.parser.condition.Statements.*
+import arfies.restart.life.parser.exception.SyntaxError
 import arfies.restart.life.story.Condition
 
 import scala.annotation.tailrec

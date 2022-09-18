@@ -1,4 +1,4 @@
-package arfies.restart.life.condition.parser
+package arfies.restart.life.parser.condition
 
 /**
  * 语句

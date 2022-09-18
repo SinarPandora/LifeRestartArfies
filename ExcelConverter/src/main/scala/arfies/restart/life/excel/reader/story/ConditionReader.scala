@@ -1,8 +1,8 @@
 package arfies.restart.life.excel.reader.story
 
-import arfies.restart.life.condition.parser.Statements.Statement
-import arfies.restart.life.condition.parser.{Parser, Statements}
 import arfies.restart.life.excel.parser.phase.Keywords
+import arfies.restart.life.parser.condition.Statements.Statement
+import arfies.restart.life.parser.condition.{Parser, Statements}
 import arfies.restart.life.story.Condition
 import arfies.restart.life.story.Condition.*
 

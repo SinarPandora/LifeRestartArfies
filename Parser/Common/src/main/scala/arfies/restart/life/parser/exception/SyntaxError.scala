@@ -1,4 +1,4 @@
-package arfies.restart.life.exception
+package arfies.restart.life.parser.exception
 
 /**
  * 语法错误

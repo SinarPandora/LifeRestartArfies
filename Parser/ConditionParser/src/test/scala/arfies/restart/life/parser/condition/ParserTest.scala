@@ -1,6 +1,7 @@
-package arfies.restart.life.condition.parser
+package arfies.restart.life.parser.condition
 
-import arfies.restart.life.exception.SyntaxError
+import arfies.restart.life.parser.condition.Statements.Compare
+import arfies.restart.life.parser.exception.SyntaxError
 import arfies.restart.life.story.Condition
 import common.UnitSpec
 
@@ -13,7 +14,7 @@ import scala.util.Try
 class ParserTest extends UnitSpec {
   "简单的比较条件语句" should "正确解析" in {
     val parser = new Parser("德望>=30")
-    val result = parser.parse().asInstanceOf[Statements.Compare]
+    val result = parser.parse().asInstanceOf[Compare]
     assert(result.opt == Condition.Opts.Attr.GREAT_EQUAL)
     assert(result.name == "德望")
     assert(result.value == "30")

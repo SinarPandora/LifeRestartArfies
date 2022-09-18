@@ -1,6 +1,6 @@
-package arfies.restart.life.condition.parser
+package arfies.restart.life.parser.condition
 
-import arfies.restart.life.condition.parser.TokenTypes.TokenType
+import arfies.restart.life.parser.condition.TokenTypes.TokenType
 
 /**
  * Token
