@@ -94,12 +94,12 @@ final class Parser(sourceCode: String) {
    *
    * @return 解析结果
    */
-  private def parseAtCheck(): Option[AtOrNot] = {
+  private def parseAtCheck(): Option[AtOrHaveExp] = {
     val next = lexer.lookAhead()
     if (next.tpe == TokenTypes.AT || next.tpe == TokenTypes.NOT_AT) {
       lexer.nextToken(tpe = TokenTypes.NAME_OR_VALUE)
         .map { case Token(_, _, name, _) =>
-          AtOrNot(next.tpe match {
+          AtOrHaveExp(next.tpe match {
             case TokenTypes.AT => Condition.Opts.Path.AT
             case TokenTypes.NOT_AT => Condition.Opts.Path.NOT_AT
           }, name)
@@ -119,7 +119,7 @@ final class Parser(sourceCode: String) {
     if (next.tpe == TokenTypes.EXP || next.tpe == TokenTypes.NOT_EXP) {
       lexer.nextToken(tpe = TokenTypes.NAME_OR_VALUE)
         .map { case Token(_, _, name, _) =>
-          AtOrNot(next.tpe match {
+          AtOrHaveExp(next.tpe match {
             case TokenTypes.EXP => Condition.Opts.EventHistory.HAVE_EXP
             case TokenTypes.NOT_EXP => Condition.Opts.EventHistory.NOT_HAVE
           }, name)
@@ -231,6 +231,7 @@ final class Parser(sourceCode: String) {
    *
    * @return 解析结果
    */
+  @throws[SyntaxError]
   def parse(): Statement = {
     parseCheck() match {
       case Some(result) =>

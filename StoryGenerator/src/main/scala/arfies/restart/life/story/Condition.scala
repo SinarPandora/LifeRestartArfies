@@ -36,6 +36,7 @@ object Condition {
     val AFTER_ATTRS_CHANGE: String = "AfterAttrsChange"
     val AFTER_ATTRS_UP: String = "AfterAttrsUp"
     val AFTER_ATTRS_DOWN: String = "AfterAttrsDown"
+    val PLAYER_INIT: String = "PlayerInit"
   }
 
   object Targets {

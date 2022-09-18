@@ -9,7 +9,7 @@ import arfies.restart.life.story.Condition
  * Author: sinar
  * 2022/6/21 22:04
  */
-case class Achievement(name: String, msg: Option[String], condition: Option[Condition])
+case class Achievement(name: String, msg: String, condition: Option[Condition])
 
 object Achievement {
   /**
@@ -18,6 +18,6 @@ object Achievement {
    * @param out 游戏输出
    */
   def show(achievement: Achievement, out: GameOutput): Unit = {
-    out.toast(s"获得成就：${achievement.name}", achievement.msg, GameOutput.Level.SUCCESS)
+    out.toast(s"获得成就：${achievement.name}", Some(achievement.msg), GameOutput.Level.SUCCESS)
   }
 }

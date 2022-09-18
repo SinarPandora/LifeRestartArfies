@@ -24,19 +24,19 @@ class ParserTest extends UnitSpec {
     val result = parser.parse().asInstanceOf[Statements.ExistOrNot]
     assert(result.opt == Condition.Opts.ExistOrNot.EXIST)
     assert(result.name == "免死金牌")
-    assert(result.tpe == Condition.Targets.BUFF)
+    assert(result.target == Condition.Targets.BUFF)
   }
 
   "简单的人生轨道语句" should "正确解析" in {
     val parser = new Parser("处于低谷期")
-    val result = parser.parse().asInstanceOf[Statements.AtOrNot]
+    val result = parser.parse().asInstanceOf[Statements.AtOrHaveExp]
     assert(result.opt == Condition.Opts.Path.AT)
     assert(result.name == "低谷期")
   }
 
   "简单的经历语句" should "正确解析" in {
     val parser = new Parser("未经历离别")
-    val result = parser.parse().asInstanceOf[Statements.AtOrNot]
+    val result = parser.parse().asInstanceOf[Statements.AtOrHaveExp]
     assert(result.opt == Condition.Opts.EventHistory.NOT_HAVE)
     assert(result.name == "离别")
   }
@@ -44,7 +44,7 @@ class ParserTest extends UnitSpec {
   "简单语句加括号" should "不影响解析结果" in {
     Seq("(未经历离别)", "(未经历离别）", "（未经历离别）") foreach { input =>
       val parser = new Parser(input)
-      val result = parser.parse().asInstanceOf[Statements.AtOrNot]
+      val result = parser.parse().asInstanceOf[Statements.AtOrHaveExp]
       assert(result.opt == Condition.Opts.EventHistory.NOT_HAVE)
       assert(result.name == "离别")
     }
@@ -58,8 +58,8 @@ class ParserTest extends UnitSpec {
     val first = stat.stats.head.asInstanceOf[Statements.ExistOrNot]
     assert(first.opt == Condition.Opts.ExistOrNot.EXIST)
     assert(first.name == "免死金牌")
-    assert(first.tpe == Condition.Targets.BUFF)
-    val second = stat.stats.last.asInstanceOf[Statements.AtOrNot]
+    assert(first.target == Condition.Targets.BUFF)
+    val second = stat.stats.last.asInstanceOf[Statements.AtOrHaveExp]
     assert(second.opt == Condition.Opts.EventHistory.NOT_HAVE)
     assert(second.name == "离别")
   }
@@ -83,8 +83,8 @@ class ParserTest extends UnitSpec {
     val firstGroup_First = firstGroup.stats.head.asInstanceOf[Statements.ExistOrNot]
     assert(firstGroup_First.opt == Condition.Opts.ExistOrNot.EXIST)
     assert(firstGroup_First.name == "免死金牌")
-    assert(firstGroup_First.tpe == Condition.Targets.BUFF)
-    val firstGroup_Second = firstGroup.stats.last.asInstanceOf[Statements.AtOrNot]
+    assert(firstGroup_First.target == Condition.Targets.BUFF)
+    val firstGroup_Second = firstGroup.stats.last.asInstanceOf[Statements.AtOrHaveExp]
     assert(firstGroup_Second.opt == Condition.Opts.EventHistory.NOT_HAVE)
     assert(firstGroup_Second.name == "离别")
 
@@ -123,12 +123,12 @@ class ParserTest extends UnitSpec {
     assert(c3.name == "免死金牌")
 
     // 未经历离别
-    val c4 = g2.stats.last.asInstanceOf[Statements.AtOrNot]
+    val c4 = g2.stats.last.asInstanceOf[Statements.AtOrHaveExp]
     assert(c4.opt == Condition.Opts.EventHistory.NOT_HAVE)
     assert(c4.name == "离别")
 
     // 处于低谷期
-    val c1 = stat.stats.last.asInstanceOf[Statements.AtOrNot]
+    val c1 = stat.stats.last.asInstanceOf[Statements.AtOrHaveExp]
     assert(c1.opt == Condition.Opts.Path.AT)
     assert(c1.name == "低谷期")
   }

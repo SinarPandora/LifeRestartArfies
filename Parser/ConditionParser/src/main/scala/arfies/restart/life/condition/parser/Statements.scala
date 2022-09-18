@@ -11,9 +11,9 @@ object Statements {
 
   case class Compare(name: String, opt: String, value: String) extends Statement
 
-  case class ExistOrNot(tpe: String, opt: String, name: String) extends Statement
+  case class ExistOrNot(target: String, opt: String, name: String) extends Statement
 
-  case class AtOrNot(opt: String, name: String) extends Statement
+  case class AtOrHaveExp(opt: String, name: String) extends Statement
 
   case class Combine(tpe: String, stats: Seq[Statement]) extends Statement
 }
