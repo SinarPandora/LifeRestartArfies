@@ -93,16 +93,16 @@ class Lexer(private var _remainSource: String = "") {
       _remainSource.head match {
         case c@'+' =>
           moveCursorRight(1)
-          Some(Token(TokenTypes.ADD, c.toString))
+          Some(Token(TokenTypes.OPERATOR, c.toString, Some(TokenTypes.ADD)))
         case c@('-' | '-' | '—') =>
           moveCursorRight(1)
-          Some(Token(TokenTypes.SUB, c.toString))
+          Some(Token(TokenTypes.OPERATOR, c.toString, Some(TokenTypes.SUB)))
         case c@('x' | 'X' | '*') =>
           moveCursorRight(1)
-          Some(Token(TokenTypes.MUL, c.toString))
+          Some(Token(TokenTypes.OPERATOR, c.toString, Some(TokenTypes.MUL)))
         case c@('/' | '÷') =>
           moveCursorRight(1)
-          Some(Token(TokenTypes.DIV, c.toString))
+          Some(Token(TokenTypes.OPERATOR, c.toString, Some(TokenTypes.DIV)))
         case c@(':' | '：') =>
           moveCursorRight(1)
           Some(Token(TokenTypes.COLON, c.toString))

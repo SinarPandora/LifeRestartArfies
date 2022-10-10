@@ -69,56 +69,60 @@ class Parser(sourceCode: String) {
    * @return 解析结果
    */
   private def parseGetOrLost(): Option[GetOrLost] = {
-    val next = lexer.lookAhead()
-    if (next.tpe == TokenTypes.GET || next.tpe == TokenTypes.LOST) {
-      implicit val lineNum: Int = next.lineNum
-      lexer.nextToken(tpe = TokenTypes.TYPE)
-        // 处理一般语句
-        .map { token =>
-          if (token.source == "结局") throw SyntaxError(s"不可以${next.source}结局")
-          (next.tpe, token.source)
-        }
-        .flatMap(pair => lexer.nextToken(tpe = TokenTypes.COLON).map(_ => pair))
-        .flatMap { case (getOrLost, targetType) =>
-          lexer.nextToken(tpe = TokenTypes.NAME_OR_VALUE)
-            .map { case Token(_, _, rawName, _) =>
-              var roundOpt: Option[Int] = None
-              val name = if (targetType == "buff" || targetType == "Buff") {
-                if (rawName.endsWith("回合")) {
-                  val raw = rawName.stripSuffix("回合")
-                  val round = Try {
-                    raw.reverseIterator
-                      .takeWhile(c => '0' <= c && c <= '9')
-                      .mkString.reverse.toInt
-                  }.getOrElse(throw SyntaxError("回合数应是整数值"))
-                  roundOpt = Some(round)
-                  val name = raw.stripSuffix(round.toString)
-                  if (name.isEmpty) throw SyntaxError("能调整回合数的 Buff 名不能是数字")
-                  name
-                } else rawName
-              } else rawName
-              GetOrLost(
-                targetType match {
-                  case "天赋" => Effect.Targets.TALENT
-                  case "技能" => Effect.Targets.SKILL
-                  case "成就" => Effect.Targets.ACHIEVEMENT
-                  case "Buff" | "buff" => Effect.Targets.BUFF
-                }, name, getOrLost match {
-                  case TokenTypes.GET => Effect.Opts.ADD
-                  case TokenTypes.LOST =>
-                    if (targetType == "buff" || targetType == "Buff") Effect.Opts.SUB
-                    else Effect.Opts.DEL
-                }, roundOpt
-              )
-            }
-        }
-        .orElse({
+    val opt = lexer.lookAhead()
+    if (opt.tpe == TokenTypes.GET || opt.tpe == TokenTypes.LOST) {
+      lexer.nextToken() // 吃掉当前操作符
+      implicit val lineNum: Int = opt.lineNum
+      val next = lexer.lookAhead()
+      next.tpe match {
+        case TokenTypes.TYPE =>
+          val targetType = next.source
+          if (next.source == "结局") {
+            throw SyntaxError(s"不可以${opt.source}结局")
+          } else if (opt.tpe == TokenTypes.LOST && targetType == "成就") {
+            throw SyntaxError("不可以失去成就")
+          }
+          lexer.nextTokenMustBe(tpe = TokenTypes.COLON)
+          val Token(_, _, rawName, _) = lexer.nextTokenMustBe(tpe = TokenTypes.NAME_OR_VALUE)
+          var roundOpt: Option[Int] = None
+          val name = if (rawName.endsWith("回合")) {
+            val raw = rawName.stripSuffix("回合")
+            val round = Try {
+              raw.reverseIterator
+                .takeWhile(c => '0' <= c && c <= '9')
+                .mkString.reverse.toInt
+            }.getOrElse(throw SyntaxError("回合数应是整数值"))
+            roundOpt = Some(round)
+            val name = raw.stripSuffix(round.toString)
+            if (name.isEmpty) throw SyntaxError("能调整回合数的 Buff 名不能是数字")
+            name
+          } else rawName
+          if (roundOpt.isDefined && targetType != "buff" && targetType != "Buff") {
+            throw SyntaxError(s"只有 Buff 能被减少回合，操作目标：$targetType，回合数：${roundOpt.get}")
+          }
+          Some {
+            GetOrLost(
+              targetType match {
+                case "天赋" => Effect.Targets.TALENT
+                case "技能" => Effect.Targets.SKILL
+                case "成就" => Effect.Targets.ACHIEVEMENT
+                case "Buff" | "buff" => Effect.Targets.BUFF
+              }, name, opt.tpe match {
+                case TokenTypes.GET => Effect.Opts.ADD
+                case TokenTypes.LOST =>
+                  if (targetType == "buff" || targetType == "Buff") Effect.Opts.SUB
+                  else Effect.Opts.DEL
+              }, roundOpt
+            )
+          }
+        case TokenTypes.NAME_OR_VALUE =>
           // 处理删除语句
-          val token = lexer.lookAhead()
+          val token = lexer.nextToken()
           if (token.tpe == TokenTypes.NAME_OR_VALUE) {
             Some(GetOrLost(Effect.Targets.ATTR, token.source, Effect.Opts.DEL))
           } else None
-        })
+        case _ => throw SyntaxError("不完整的得失/删除语句")(opt.lineNum)
+      }
     } else None
   }
 
@@ -132,17 +136,19 @@ class Parser(sourceCode: String) {
   private def parseInto(): Option[Into] = {
     val into = lexer.lookAhead()
     if (into.tpe == TokenTypes.INTO) {
+      lexer.nextToken() // 吃掉当前操作符
+      implicit val lineNum: Int = into.lineNum
       val next = lexer.nextToken()
       next.tpe match {
         case TokenTypes.TYPE =>
-          if (next.source != "结局") throw SyntaxError("只可以'进入'结局")(into.lineNum)
+          if (next.source != "结局") throw SyntaxError("只可以'进入'结局")
           lexer.nextTokenMustBe(TokenTypes.COLON)
           val name = lexer.nextTokenMustBe(TokenTypes.NAME_OR_VALUE)
           Some(Into(Effect.Targets.ENDING, name.source))
         case TokenTypes.COLON =>
           val name = lexer.nextTokenMustBe(TokenTypes.NAME_OR_VALUE)
           Some(Into(Effect.Targets.PATH, name.source))
-        case _ => throw SyntaxError("不完整的转入/进入语句")(into.lineNum)
+        case _ => throw SyntaxError("不完整的转入/进入语句")
       }
     } else None
   }

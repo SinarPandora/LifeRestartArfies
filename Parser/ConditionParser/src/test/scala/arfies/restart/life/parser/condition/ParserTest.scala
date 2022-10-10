@@ -13,7 +13,7 @@ import scala.util.Try
  */
 class ParserTest extends UnitSpec {
   "简单的比较条件语句" should "正确解析" in {
-    val parser = new Parser("德望>=30")
+    val parser = Parser("德望>=30")
     val result = parser.parse().asInstanceOf[Compare]
     assert(result.opt == Condition.Opts.Attr.GREAT_EQUAL)
     assert(result.name == "德望")
@@ -21,7 +21,7 @@ class ParserTest extends UnitSpec {
   }
 
   "简单的存在语句" should "正确解析" in {
-    val parser = new Parser("拥有buff：免死金牌")
+    val parser = Parser("拥有buff：免死金牌")
     val result = parser.parse().asInstanceOf[Statements.ExistOrNot]
     assert(result.opt == Condition.Opts.ExistOrNot.EXIST)
     assert(result.name == "免死金牌")
@@ -29,14 +29,14 @@ class ParserTest extends UnitSpec {
   }
 
   "简单的人生轨道语句" should "正确解析" in {
-    val parser = new Parser("处于低谷期")
+    val parser = Parser("处于低谷期")
     val result = parser.parse().asInstanceOf[Statements.AtOrHaveExp]
     assert(result.opt == Condition.Opts.Path.AT)
     assert(result.name == "低谷期")
   }
 
   "简单的经历语句" should "正确解析" in {
-    val parser = new Parser("未经历离别")
+    val parser = Parser("未经历离别")
     val result = parser.parse().asInstanceOf[Statements.AtOrHaveExp]
     assert(result.opt == Condition.Opts.EventHistory.NOT_HAVE)
     assert(result.name == "离别")
@@ -44,7 +44,7 @@ class ParserTest extends UnitSpec {
 
   "简单语句加括号" should "不影响解析结果" in {
     Seq("(未经历离别)", "(未经历离别）", "（未经历离别）") foreach { input =>
-      val parser = new Parser(input)
+      val parser = Parser(input)
       val result = parser.parse().asInstanceOf[Statements.AtOrHaveExp]
       assert(result.opt == Condition.Opts.EventHistory.NOT_HAVE)
       assert(result.name == "离别")
@@ -52,7 +52,7 @@ class ParserTest extends UnitSpec {
   }
 
   "组合语句" should "正确解析" in {
-    val parser = new Parser("拥有buff：免死金牌，且未经历离别")
+    val parser = Parser("拥有buff：免死金牌，且未经历离别")
     val result = parser.parse()
     val stat = result.asInstanceOf[Statements.Combine]
     assert(stat.tpe == Condition.Targets.AND)
@@ -66,17 +66,17 @@ class ParserTest extends UnitSpec {
   }
 
   "同时存在和/且，并且没加括号" should "报错并给出理由" in {
-    val parser = new Parser("拥有buff：免死金牌，或未经历离别，且德望>=30")
+    val parser = Parser("拥有buff：免死金牌，或未经历离别，且德望>=30")
     val error = Try(parser.parse()).failed.get
     assert(error.isInstanceOf[SyntaxError])
     assert(error.getMessage == "[第1行] 和/或同时出现并且没有添加括号")
   }
 
   "同时存在和/且，且加了括号" should "正确解析" in {
-    val parser = new Parser("（拥有buff：免死金牌，或未经历离别），且德望<=30")
-    val result = parser.parse()
-    val stat = result.asInstanceOf[Statements.Combine]
+    val parser = Parser("（拥有buff：免死金牌，或未经历离别），且德望<=30")
+    val stat = parser.parse().asInstanceOf[Statements.Combine]
     assert(stat.tpe == Condition.Targets.AND)
+    assert(stat.stats.lengthIs == 2)
 
     // （拥有buff：免死金牌，或未经历离别）
     val firstGroup = stat.stats.head.asInstanceOf[Statements.Combine]
@@ -98,15 +98,16 @@ class ParserTest extends UnitSpec {
 
   "复杂语句" should "正确解析" in {
     //                                                   c3               c4             c2           c1
-    val parser = new Parser("（（（拥有buff：免死金牌，或未经历离别），且德望<=30)，或处于低谷期）")
-    val result = parser.parse()
+    val parser = Parser("（（（拥有buff：免死金牌，或未经历 离别），且德望<=30)，或处于低谷期）")
     // （（（拥有buff：免死金牌，或未经历离别），且德望<=30)，或处于低谷期）
-    val stat = result.asInstanceOf[Statements.Combine]
+    val stat = parser.parse().asInstanceOf[Statements.Combine]
     assert(stat.tpe == Condition.Targets.OR)
+    assert(stat.stats.lengthIs == 2)
 
     // (（拥有buff：免死金牌，或未经历离别），且德望<=30)
     val g1 = stat.stats.head.asInstanceOf[Statements.Combine]
     assert(g1.tpe == Condition.Targets.AND)
+    assert(g1.stats.lengthIs == 2)
 
     // 德望<=30
     val c2 = g1.stats.last.asInstanceOf[Statements.Compare]
@@ -117,6 +118,7 @@ class ParserTest extends UnitSpec {
     //（拥有buff：免死金牌，或未经历离别）
     val g2 = g1.stats.head.asInstanceOf[Statements.Combine]
     assert(g2.tpe == Condition.Targets.OR)
+    assert(g2.stats.lengthIs == 2)
 
     // 拥有buff：免死金牌
     val c3 = g2.stats.head.asInstanceOf[Statements.ExistOrNot]
