@@ -24,7 +24,6 @@ object TokenTypes extends Enumeration {
   val AND: TokenType = Value("连接符：和")
   val OR: TokenType = Value("连接符：或")
   val COLON: TokenType = Value("冒号")
-  val ROUND: TokenType = Value("回合")
   val LEFT_PAREN: TokenType = Value("左括号")
   val RIGHT_PAREN: TokenType = Value("右括号")
 }
