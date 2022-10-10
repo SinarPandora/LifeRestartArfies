@@ -54,6 +54,14 @@ lazy val condParser: Project = (project in file("Parser/ConditionParser"))
   )
   .dependsOn(storyGenerator, parserCommon)
 
+lazy val effParser: Project = (project in file("Parser/EffectParser"))
+  .settings(
+    name := "Condition_Parser",
+    scalacOptions ++= compileOptions,
+    libraryDependencies ++= jvmTest.value
+  )
+  .dependsOn(storyGenerator, parserCommon)
+
 lazy val excelConverter: Project = (project in file("ExcelConverter"))
   .enablePlugins(AssemblyPlugin)
   .settings(
