@@ -1,16 +1,15 @@
-package arfies.restart.life.parser.condition
+package arfies.restart.life.parser.effect
 
-import arfies.restart.life.parser.condition.Lexer.*
+import arfies.restart.life.parser.effect.Lexer.*
 import arfies.restart.life.parser.exception.SyntaxError
 
-import scala.util.chaining.scalaUtilChainingOps
 import scala.util.matching.Regex
 
 /**
  * 分词器
  *
  * Author: sinar
- * 2022/8/10 21:13
+ * 2022/9/18 16:51
  */
 class Lexer(private var _remainSource: String = "") {
   // 简单条件表达式始终为一行
@@ -58,19 +57,12 @@ class Lexer(private var _remainSource: String = "") {
    * @return 解析结果
    */
   private def scanTextOperator(): Option[Token] = {
-    TEXT_OPERATOR_LENGTH2_PATTERN.findPrefixOf(_remainSource).map { opt =>
+    TEXT_OPERATOR_PATTERN.findPrefixOf(_remainSource).map { opt =>
       moveCursorRight(2)
       opt match {
-        case "拥有" => Token(TokenTypes.EXIST, opt)
-        case "没有" => Token(TokenTypes.NOT_EXIST, opt)
-        case "处于" => Token(TokenTypes.AT, opt)
-        case "不在" => Token(TokenTypes.NOT_AT, opt)
-      }
-    } orElse TEXT_OPERATOR_LENGTH3_PATTERN.findPrefixOf(_remainSource).map { opt =>
-      moveCursorRight(3)
-      opt match {
-        case "经历过" => Token(TokenTypes.EXP, opt)
-        case "未经历" => Token(TokenTypes.NOT_EXP, opt)
+        case "获得" => Token(TokenTypes.GET, opt)
+        case "删除" | "失去" => Token(TokenTypes.LOST, opt)
+        case "转入" | "进入" => Token(TokenTypes.INTO, opt)
       }
     }
   }
@@ -91,41 +83,6 @@ class Lexer(private var _remainSource: String = "") {
   }
 
   /**
-   * 标准化比较操作符为英文标点符号
-   *
-   * @param input 输入
-   * @return 标准化后的字符串
-   */
-  private def normalizeCompareOperator(input: String): String = {
-    input.map {
-      case '《' => '<'
-      case '》' => '>'
-      case '！' => '!'
-      case other => other
-    }
-  }
-
-  /**
-   * 扫描比较操作符
-   *
-   * @param possible 包含比较操作符的字符串
-   * @return 扫描结果
-   */
-  private def scanCompareOperator(possible: String): Option[Token] = {
-    COMPARE_OPERATOR_PATTERN.findPrefixOf(possible).map { opt =>
-      moveCursorRight(opt.length)
-      opt match {
-        case ">" => Token(TokenTypes.OPERATOR, opt, subType = Some(TokenTypes.GT))
-        case "<" => Token(TokenTypes.OPERATOR, opt, subType = Some(TokenTypes.LT))
-        case ">=" => Token(TokenTypes.OPERATOR, opt, subType = Some(TokenTypes.GE))
-        case "<=" => Token(TokenTypes.OPERATOR, opt, subType = Some(TokenTypes.LE))
-        case "=" | "==" => Token(TokenTypes.OPERATOR, opt, subType = Some(TokenTypes.EQ))
-        case "!=" | "=!=" => Token(TokenTypes.OPERATOR, opt, subType = Some(TokenTypes.NE))
-      }
-    }
-  }
-
-  /**
    * 盲扫下一个 Token
    *
    * @return 扫描结果
@@ -134,6 +91,18 @@ class Lexer(private var _remainSource: String = "") {
     if (_remainSource.isBlank) Some(Token(TokenTypes.EOF, _remainSource))
     else {
       _remainSource.head match {
+        case c@'+' =>
+          moveCursorRight(1)
+          Some(Token(TokenTypes.ADD, c.toString))
+        case c@('-' | '-' | '—') =>
+          moveCursorRight(1)
+          Some(Token(TokenTypes.SUB, c.toString))
+        case c@('x' | 'X' | '*') =>
+          moveCursorRight(1)
+          Some(Token(TokenTypes.MUL, c.toString))
+        case c@('/' | '÷') =>
+          moveCursorRight(1)
+          Some(Token(TokenTypes.DIV, c.toString))
         case c@(':' | '：') =>
           moveCursorRight(1)
           Some(Token(TokenTypes.COLON, c.toString))
@@ -143,11 +112,6 @@ class Lexer(private var _remainSource: String = "") {
         case c@(')' | '）') =>
           moveCursorRight(1)
           Some(Token(TokenTypes.RIGHT_PAREN, c.toString))
-        case c if COMPARE_OPERATOR_POSSIBLE.contains(c) =>
-          _remainSource
-            .take(3)
-            .pipe(normalizeCompareOperator)
-            .pipe(scanCompareOperator)
         case ',' | '，' =>
           scanLogicalConnector()
         case _ =>
@@ -227,11 +191,7 @@ class Lexer(private var _remainSource: String = "") {
 
 object Lexer {
   private val NAME_PATTERN: Regex = raw"^[_\w\u4e00-\u9fa5]+".r
-  private val TYPES: Set[String] = Set("属性", "标签", "天赋", "技能", "buff", "Buff")
-  private val COMPARE_OPERATOR_POSSIBLE: Set[Char] = Set('>', '<', '=', '!', '》', '《', '！')
-  private val COMPARE_OPERATOR_PATTERN: Regex = raw"^(>=|<=|=!=|!=|==|=|<|>)".r
-  private val TEXT_OPERATOR_LENGTH2_PATTERN: Regex = raw"^(拥有|没有|处于|不在)".r
-  private val TEXT_OPERATOR_LENGTH3_PATTERN: Regex = raw"^(经历过|未经历)".r
+  private val TYPES: Set[String] = Set("天赋", "技能", "buff", "Buff", "成就", "结局")
+  private val TEXT_OPERATOR_PATTERN: Regex = raw"^(删除|获得|失去|转入|进入)".r
   private val LOGICAL_CONNECTOR_PATTERN: Regex = raw"^[,，](?<name>[和或且])".r
 }
-

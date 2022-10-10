@@ -1,12 +1,12 @@
 package arfies.restart.life.parser.condition
 
-import arfies.restart.life.parser.condition.Results.Token
 import arfies.restart.life.parser.condition.Statements.*
 import arfies.restart.life.parser.exception.SyntaxError
 import arfies.restart.life.story.Condition
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
+import scala.util.Try
 
 /**
  * 解析器
@@ -39,7 +39,10 @@ final class Parser(sourceCode: String) {
         .map(token => (next.source, token.subType.get))
         .flatMap { case (name, optType) =>
           lexer.nextToken(tpe = TokenTypes.NAME_OR_VALUE)
-            .map { case Token(_, _, value, _) =>
+            .map { case Token(_, lineNum, value, _) =>
+              if ((optType != TokenTypes.EQ && optType != TokenTypes.NE) && Try(value.toInt).isFailure) {
+                throw SyntaxError(s"比较操作符${optType}后应为数值")(lineNum)
+              }
               Compare(name, optType match {
                 case TokenTypes.GT => Condition.Opts.Attr.GREAT
                 case TokenTypes.LT => Condition.Opts.Attr.LESS
@@ -128,7 +131,7 @@ final class Parser(sourceCode: String) {
   }
 
   /**
-   * 扫描
+   * 扫描条件
    *
    * @param lastStat 上一条语句
    * @return 扫描结果
