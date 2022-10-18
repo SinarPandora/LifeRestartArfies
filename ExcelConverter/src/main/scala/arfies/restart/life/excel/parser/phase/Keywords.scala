@@ -11,6 +11,7 @@ import arfies.restart.life.story.{Condition, Effect}
 case class Keywords
 (
   attrs: Set[String],
+  tags: Set[String],
   skills: Set[String],
   talents: Set[String],
   buffs: Set[String],
@@ -28,8 +29,10 @@ case class Keywords
    */
   def exists(keyword: String, tpe: String): Either[String, String] = {
     tpe match {
-      case Condition.Targets.ATTR | Condition.Targets.TAG | Effect.Targets.ATTR | Effect.Targets.TAG =>
-        if (!attrs.contains(keyword)) return Left(s"属性/标签不存在：$keyword")
+      case Condition.Targets.ATTR | Effect.Targets.ATTR =>
+        if (!attrs.contains(keyword)) return Left(s"属性不存在：$keyword")
+      case Condition.Targets.TAG | Effect.Targets.TAG =>
+        if (!tags.contains(keyword)) return Left(s"标签不存在：$keyword")
       case Condition.Targets.SKILL | Effect.Targets.SKILL =>
         if (!skills.contains(keyword)) return Left(s"技能不存在：$keyword")
       case Condition.Targets.TALENT | Effect.Targets.TALENT =>

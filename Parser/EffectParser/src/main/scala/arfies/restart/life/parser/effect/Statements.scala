@@ -9,9 +9,9 @@ package arfies.restart.life.parser.effect
 object Statements {
   sealed trait Statement
 
-  case class Update(name: String, action: String, value: String) extends Statement
+  case class Update(name: String, opt: String, value: String) extends Statement
 
-  case class GetOrLost(tpe: String, target: String, action: String, round: Option[Int] = None) extends Statement
+  case class GetOrLost(tpe: String, name: String, opt: String, round: Option[Int] = None) extends Statement
 
   case class Into(tpe: String, name: String) extends Statement
 

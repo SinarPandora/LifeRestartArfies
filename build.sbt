@@ -35,7 +35,7 @@ lazy val jvmFacade: Project = (project in file("Facade/JVM"))
   .settings(
     name := "JVM_Facade",
     scalacOptions ++= compileOptions,
-    assembly / assemblyJarName := "repl.jar",
+    assembly / assemblyJarName := "repl.jar"
   )
   .dependsOn(storyGenerator)
 
@@ -76,7 +76,7 @@ lazy val excelConverter: Project = (project in file("ExcelConverter"))
       "com.typesafe" % "config" % "1.4.2"
     )
   )
-  .dependsOn(storyGenerator, condParser)
+  .dependsOn(storyGenerator, condParser, effParser)
 
 lazy val compileOptions: Seq[String] = Seq(
   "-Xsource:3",

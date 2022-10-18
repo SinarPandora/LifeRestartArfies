@@ -31,6 +31,7 @@ object ConditionReader {
    * @param keywords 关键词
    * @return 解析结果（可能包含错误信息）
    */
+  //noinspection DuplicatedCode
   def read(raw: String, timing: String, keywords: Keywords): Either[String, Condition] = {
     Try(Parser(raw).parse()) match {
       case Failure(exception) => Left(exception.getMessage)
@@ -49,16 +50,23 @@ object ConditionReader {
   private def readStat(timing: String, keywords: Keywords)(stat: Statement): Either[String, Condition] = {
     stat match {
       case Statements.Compare(name, opt, value) =>
-        keywords.exists(name, Condition.Targets.ATTR)
-          .flatMap { name =>
-            if (NUMBER_OPTS.contains(opt)) {
-              Try(value.toInt).toEither
+        val isAttr = keywords.exists(name, Condition.Targets.ATTR)
+        val isTag = keywords.exists(name, Condition.Targets.TAG)
+        if (isAttr.isLeft && isTag.isLeft) Left("属性/标签不存在")
+        else {
+          if (isAttr.isRight) {
+            for {
+              value <- Try(value.toInt).toEither
                 .left.map(_ => s"错误的数值格式：$value，属性名：$name")
-                .map(num => NumAttrCondition(timing, name, opt, num))
-            } else {
-              Right(TagCondition(timing, name, opt, value))
-            }
+              result = NumAttrCondition(timing, name, opt, value)
+            } yield result
+          } else {
+            for {
+              _ <- if (NUMBER_OPTS.contains(opt)) Left(s"不能对标签 $name 应用数值比较操作：$opt") else Right()
+              result = TagCondition(timing, name, opt, value)
+            } yield result
           }
+        }
       case Statements.ExistOrNot(target, opt, name) =>
         keywords.exists(name, target)
           .map(name => ExistOrNotCondition(target, timing, name, opt))

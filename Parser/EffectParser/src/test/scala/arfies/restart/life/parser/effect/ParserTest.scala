@@ -15,7 +15,7 @@ class ParserTest extends UnitSpec {
   "简单的更新语句" should "正确解析" in {
     val parser = Parser("阳寿*50")
     val result = parser.parse().asInstanceOf[Update]
-    assert(result.action == Effect.Opts.MUL)
+    assert(result.opt == Effect.Opts.MUL)
     assert(result.name == "阳寿")
     assert(result.value == "50")
   }
@@ -24,8 +24,8 @@ class ParserTest extends UnitSpec {
     val parser = new Parser("删除呆毛")
     val result = parser.parse().asInstanceOf[GetOrLost]
     assert(result.round.isEmpty)
-    assert(result.action == Effect.Opts.DEL)
-    assert(result.target == "呆毛")
+    assert(result.opt == Effect.Opts.DEL)
+    assert(result.name == "呆毛")
     assert(result.tpe == Effect.Targets.ATTR)
   }
 
@@ -33,8 +33,8 @@ class ParserTest extends UnitSpec {
     val parser = Parser("获得 Buff：天选之子 10回合")
     val result = parser.parse().asInstanceOf[GetOrLost]
     assert(result.round.contains(10))
-    assert(result.action == Effect.Opts.ADD)
-    assert(result.target == "天选之子")
+    assert(result.opt == Effect.Opts.ADD)
+    assert(result.name == "天选之子")
     assert(result.tpe == Effect.Targets.BUFF)
   }
 
@@ -42,8 +42,8 @@ class ParserTest extends UnitSpec {
     val parser = Parser("失去 技能: 空中劈叉")
     val result = parser.parse().asInstanceOf[GetOrLost]
     assert(result.round.isEmpty)
-    assert(result.action == Effect.Opts.DEL)
-    assert(result.target == "空中劈叉")
+    assert(result.opt == Effect.Opts.DEL)
+    assert(result.name == "空中劈叉")
     assert(result.tpe == Effect.Targets.SKILL)
   }
 
@@ -51,8 +51,8 @@ class ParserTest extends UnitSpec {
     val parser = Parser("失去 Buff：天选之子 10回合")
     val result = parser.parse().asInstanceOf[GetOrLost]
     assert(result.round.contains(10))
-    assert(result.action == Effect.Opts.SUB)
-    assert(result.target == "天选之子")
+    assert(result.opt == Effect.Opts.SUB)
+    assert(result.name == "天选之子")
     assert(result.tpe == Effect.Targets.BUFF)
   }
 
@@ -89,7 +89,7 @@ class ParserTest extends UnitSpec {
       val parser = Parser(input)
       val result = parser.parse().asInstanceOf[Update]
       assert(result.name == "霉运")
-      assert(result.action == Effect.Opts.DIV)
+      assert(result.opt == Effect.Opts.DIV)
       assert(result.value == "10")
     }
   }
@@ -101,11 +101,11 @@ class ParserTest extends UnitSpec {
     val first = stat.stats.head.asInstanceOf[Update]
     assert(first.name == "记忆力")
     assert(first.value == "100")
-    assert(first.action == Effect.Opts.ADD)
+    assert(first.opt == Effect.Opts.ADD)
     val second = stat.stats.last.asInstanceOf[GetOrLost]
     assert(second.tpe == Effect.Targets.TALENT)
-    assert(second.action == Effect.Opts.ADD)
-    assert(second.target == "最强大脑")
+    assert(second.opt == Effect.Opts.ADD)
+    assert(second.name == "最强大脑")
     assert(second.round.isEmpty)
   }
 
@@ -126,7 +126,7 @@ class ParserTest extends UnitSpec {
     val first = result.stats.head.asInstanceOf[Update]
     assert(first.name == "记忆力")
     assert(first.value == "100")
-    assert(first.action == Effect.Opts.ADD)
+    assert(first.opt == Effect.Opts.ADD)
 
     //（获得天赋：最强大脑，或获得技能：过目不忘）
     val secondGroup = result.stats.last.asInstanceOf[Combine]
@@ -136,16 +136,16 @@ class ParserTest extends UnitSpec {
     // 获得天赋：最强大脑
     val secondGroup_First = secondGroup.stats.head.asInstanceOf[GetOrLost]
     assert(secondGroup_First.tpe == Effect.Targets.TALENT)
-    assert(secondGroup_First.target == "最强大脑")
+    assert(secondGroup_First.name == "最强大脑")
     assert(secondGroup_First.round.isEmpty)
-    assert(secondGroup_First.action == Effect.Opts.ADD)
+    assert(secondGroup_First.opt == Effect.Opts.ADD)
 
     // 获得技能：过目不忘
     val secondGroup_Second = secondGroup.stats.last.asInstanceOf[GetOrLost]
     assert(secondGroup_Second.tpe == Effect.Targets.SKILL)
-    assert(secondGroup_Second.target == "过目不忘")
+    assert(secondGroup_Second.name == "过目不忘")
     assert(secondGroup_Second.round.isEmpty)
-    assert(secondGroup_Second.action == Effect.Opts.ADD)
+    assert(secondGroup_Second.opt == Effect.Opts.ADD)
   }
 
   "复杂内容" should "正确解析" in {
@@ -168,8 +168,8 @@ class ParserTest extends UnitSpec {
     // 且获得 buff: 沉默智者
     val c4 = g1.stats.last.asInstanceOf[GetOrLost]
     assert(c4.tpe == Effect.Targets.BUFF)
-    assert(c4.target == "沉默智者")
-    assert(c4.action == Effect.Opts.ADD)
+    assert(c4.name == "沉默智者")
+    assert(c4.opt == Effect.Opts.ADD)
     assert(c4.round.isEmpty)
 
     // （智力 +100，且获得Buff：沉默20 回合, 且记忆力*2）
@@ -181,19 +181,19 @@ class ParserTest extends UnitSpec {
     val c1 = g2.stats.head.asInstanceOf[Update]
     assert(c1.name == "智力")
     assert(c1.value == "100")
-    assert(c1.action == Effect.Opts.ADD)
+    assert(c1.opt == Effect.Opts.ADD)
 
     // 且获得Buff：沉默20 回合
     val c2 = g2.stats(1).asInstanceOf[GetOrLost]
     assert(c2.tpe == Effect.Targets.BUFF)
-    assert(c2.target == "沉默")
-    assert(c2.action == Effect.Opts.ADD)
+    assert(c2.name == "沉默")
+    assert(c2.opt == Effect.Opts.ADD)
     assert(c2.round.contains(20))
 
     // 且记忆力*2
     val c3 = g2.stats.last.asInstanceOf[Update]
     assert(c3.name == "记忆力")
-    assert(c3.action == Effect.Opts.MUL)
+    assert(c3.opt == Effect.Opts.MUL)
     assert(c3.value == "2")
   }
 }

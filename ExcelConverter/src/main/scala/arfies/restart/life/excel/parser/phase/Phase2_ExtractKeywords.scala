@@ -3,7 +3,7 @@ package arfies.restart.life.excel.parser.phase
 import arfies.restart.life.excel.ir.*
 import arfies.restart.life.excel.parser.phase.Phase2_ExtractKeywords.ConfigAndKeywords
 import arfies.restart.life.excel.reader.ExcelReader
-import arfies.restart.life.player.Player.Attr
+import arfies.restart.life.player.Player.{Attr, AttrType}
 import arfies.restart.life.story.Story.StoryConfig
 
 /**
@@ -71,7 +71,8 @@ object Phase2_ExtractKeywords extends ParserPhase[StoryConfig, ConfigAndKeywords
           rawAchievements = rawAchievements,
           rawEndings = rawEndings,
           keywords = Keywords(
-            attrs = attrs.keySet,
+            attrs = attrs.filter(_._2.attrType == AttrType.NUM).keySet,
+            tags = attrs.filter(_._2.attrType == AttrType.TAG).keySet,
             skills = rawSkills.keySet,
             talents = rawTalents.keySet,
             buffs = rawBuffs.keySet,

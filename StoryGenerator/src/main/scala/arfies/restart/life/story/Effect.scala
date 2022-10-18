@@ -60,7 +60,7 @@ object Effect {
 
   case class NumAttrChange(name: String, value: Int, opt: String) extends Effect(Targets.ATTR)
 
-  case class TageChange(name: String, value: Option[String], opt: String) extends Effect(Targets.TAG)
+  case class TagChange(name: String, value: Option[String], opt: String) extends Effect(Targets.TAG)
 
   case class SkillChange(name: String, opt: String) extends Effect(Targets.SKILL)
 
@@ -150,7 +150,7 @@ object Effect {
           }
         }
       // ============================= 标签变化效果 =============================
-      case TageChange(name, value, opt) =>
+      case TagChange(name, value, opt) =>
         // TODO 解析阶段判断标签是否存在
         import Opts.{DEL, SET}
         opt match {
