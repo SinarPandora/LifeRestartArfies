@@ -61,11 +61,11 @@ object Phase5_ParseSkillAndTalents extends ParserPhase[ParsedEndings, ParsedSkil
     val success = ListBuffer[Skill]()
 
     skillOrTalents.foreach {
-      case SkillIR(name, msg, rawEffects, rawTiming, rawCondition, isTalent, rowCount) =>
+      case SkillIR(name, msg, rawEffect, rawTiming, rawCondition, isTalent, rowCount) =>
         (for {
           timing <- TimingReader.read(rawTiming)
           activeOn <- rawCondition.map(ConditionReader.read(_, timing, from.keywords)).getOrElse(Right(ImmediatelyActivate(timing)))
-          effect <- EffectReader.read(rawEffects, from.keywords)
+          effect <- EffectReader.read(rawEffect, from.keywords)
           skill = Skill(name, msg, effect, activeOn, isTalent)
         } yield skill) match {
           case Left(error) => errors += s"[技能天赋 第${rowCount}行] $error"
