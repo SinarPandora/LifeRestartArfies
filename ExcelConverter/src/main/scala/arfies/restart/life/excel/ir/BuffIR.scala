@@ -10,7 +10,7 @@ package arfies.restart.life.excel.ir
 case class BuffIR
 (
   name: String, msg: String,
-  effects: Option[String], onAddEffects: Option[String], onLeaveEffects: Option[String],
+  effect: Option[String], onAddEffect: Option[String], onLeaveEffect: Option[String],
   timing: String, condition: Option[String], roundCount: Option[Int],
   doubleApplicable: Boolean, rowCount: Int
 ) extends Named

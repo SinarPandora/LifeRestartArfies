@@ -142,7 +142,7 @@ class Round(ctx: StoryContext, startState: GameState) {
               // 无论入场效果是否有效，对 Buff 的效果已经触发成功了
               Some(
                 story.buffs(name)
-                  .onAddEffects
+                  .onAddEffect
                   .foldLeft(after.get)(
                     performEffectOrKeep(s"Buff_${name}的入场效果")
                   )
@@ -156,7 +156,7 @@ class Round(ctx: StoryContext, startState: GameState) {
                   // 无论离场效果是否有效，对 Buff 的效果已经触发成功了
                   Some(
                     story.buffs(name)
-                      .onLeaveEffects
+                      .onLeaveEffect
                       .foldLeft(after.get)(
                         performEffectOrKeep(s"Buff_${name}的离场效果")
                       )
@@ -170,7 +170,7 @@ class Round(ctx: StoryContext, startState: GameState) {
               // 无论离场效果是否有效，Buff 整体已经被去除了
               Some(
                 story.buffs(name)
-                  .onLeaveEffects
+                  .onLeaveEffect
                   .foldLeft(after.get)(
                     performEffectOrKeep(s"Buff_${name}的离场效果")
                   )
@@ -223,14 +223,14 @@ class Round(ctx: StoryContext, startState: GameState) {
       case (gameState, (buff, roundCountOpt)) =>
         // 二次校验 Buff 是否存在
         if (gameState.player.buffs.contains(buff.name)) {
-          val afterState = buff.effects.foldLeft(gameState)(performEffectOrKeep(s"Buff_${buff.name}"))
+          val afterState = buff.effect.foldLeft(gameState)(performEffectOrKeep(s"Buff_${buff.name}"))
           val player = afterState.player
           roundCountOpt.map(_ - 1) match {
             case Some(remain) =>
               if (remain < 0) {
                 afterState.copy(player = afterState.player.copy(buffs = player.buffs - buff.name))
                   .pipe {
-                    buff.onLeaveEffects.foldLeft(_)(performEffectOrKeep(s"Buff_${buff.name}的离场效果"))
+                    buff.onLeaveEffect.foldLeft(_)(performEffectOrKeep(s"Buff_${buff.name}的离场效果"))
                   }
               } else {
                 afterState.copy(player = afterState.player.copy(buffs = player.buffs + (buff.name -> Some(remain))))
@@ -273,9 +273,7 @@ class Round(ctx: StoryContext, startState: GameState) {
       case (gameState, skill) =>
         val stillExist = (if (skill.isTalent) gameState.player.talents else gameState.player.skills).contains(skill.name)
         if (stillExist) {
-          skill.effects.foldLeft(gameState)(
-            performEffectOrKeep(s"${if (skill.isTalent) "天赋" else "技能"}_${skill.name}")
-          )
+          performEffectOrKeep(s"${if (skill.isTalent) "天赋" else "技能"}_${skill.name}")(gameState, skill.effect)
         } else gameState
     }
   }

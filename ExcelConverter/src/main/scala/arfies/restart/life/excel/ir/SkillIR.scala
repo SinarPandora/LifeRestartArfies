@@ -10,7 +10,7 @@ case class SkillIR
 (
   name: String,
   msg: String,
-  effects: String,
+  effect: String,
   timing: String,
   condition: Option[String],
   isTalent: Boolean,

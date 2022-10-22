@@ -41,25 +41,25 @@ object Player {
    *
    * @param name     名称
    * @param activeOn 触发条件
-   * @param effects  效果列表
+   * @param effect   效果列表
    * @param isTalent 是否为天赋（即可以在开场抽取）
    *                 没有条件的天赋将在开场时自动生效
    */
-  case class Skill(name: String, msg: String, effects: Seq[Effect], activeOn: Condition, isTalent: Boolean)
+  case class Skill(name: String, msg: String, effect: Effect, activeOn: Condition, isTalent: Boolean)
 
   /**
    * Buff
    *
    * @param name             名称
    * @param activeOn         触发条件
-   * @param effects          效果列表
-   * @param onAddEffects     启动效果
-   * @param onLeaveEffects   离场效果
+   * @param effect           效果列表
+   * @param onAddEffect      启动效果
+   * @param onLeaveEffect    离场效果
    * @param roundCount       回合数（无回合数为永久）
    * @param doubleApplicable 是否可以叠加
    */
   case class Buff(name: String, msg: String,
-                  effects: Seq[Effect], onAddEffects: Seq[Effect], onLeaveEffects: Seq[Effect],
+                  effect: Option[Effect], onAddEffect: Option[Effect], onLeaveEffect: Option[Effect],
                   activeOn: Condition, roundCount: Option[Int],
                   doubleApplicable: Boolean)
 }
