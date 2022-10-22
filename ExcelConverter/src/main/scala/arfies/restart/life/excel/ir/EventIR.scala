@@ -14,7 +14,7 @@ case class EventIR
   afterRound: Option[Int],
   beforeRound: Option[Int],
   includeCond: Option[String],
-  effects: Option[String],
+  effect: Option[String],
   path: Option[String],
   nextEventScope: Option[String],
   rowCount: Int

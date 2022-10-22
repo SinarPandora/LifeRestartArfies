@@ -323,7 +323,7 @@ class Round(ctx: StoryContext, startState: GameState) {
    */
   private def pickEvent(gameState: GameState, events: Seq[Event]): Option[Event] = {
     events
-      .filter(event => Condition.isMeetCondition(gameState, event.includeCond))
+      .filter(event => event.includeCond.forall(Condition.isMeetCondition(gameState, _)))
       .pipe(weightedPickEvent)
   }
 
@@ -360,7 +360,7 @@ class Round(ctx: StoryContext, startState: GameState) {
   private def performEvent(gameState: GameState, event: Event): Option[GameState] = {
     if (gameState.ending.nonEmpty) return None
     out.print(event.msg)
-    val after = event.effects
+    val after = event.effect
       .foldLeft(gameState)(
         performEffectOrKeep(s"事件_${event.name}")
       )

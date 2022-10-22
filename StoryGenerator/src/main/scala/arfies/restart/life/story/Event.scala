@@ -11,8 +11,8 @@ case class Event
   name: String,
   msg: String,
   weight: Int,
-  includeCond: Condition,
-  effects: Seq[Effect],
+  includeCond: Option[Condition],
+  effect: Option[Effect],
   path: Seq[String],
   nextEventScope: Seq[String] // 下回合事件将从这之中抽取
 )
