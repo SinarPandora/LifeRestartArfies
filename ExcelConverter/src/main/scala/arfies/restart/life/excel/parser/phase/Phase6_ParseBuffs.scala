@@ -1,15 +1,11 @@
 package arfies.restart.life.excel.parser.phase
 
-import arfies.restart.life.achievement.Achievement
-import arfies.restart.life.excel.ir.{BuffIR, EventIR}
-import arfies.restart.life.excel.parser.phase.Phase5_ParseSkillAndTalents.ParsedSkillsAndTalents
-import arfies.restart.life.excel.parser.phase.Phase6_ParseBuffs.ParsedBuffs
+import arfies.restart.life.excel.ir.BuffIR
+import arfies.restart.life.excel.parser.phase.PhaseResults.{ParsedBuffs, ParsedSkillsAndTalents}
 import arfies.restart.life.excel.reader.ExcelReader
 import arfies.restart.life.excel.reader.story.{ConditionReader, EffectReader, TimingReader}
-import arfies.restart.life.player.Player.{Attr, Buff, Skill}
+import arfies.restart.life.player.Player.Buff
 import arfies.restart.life.story.Condition.ImmediatelyActivate
-import arfies.restart.life.story.{Effect, Ending}
-import arfies.restart.life.story.Story.StoryConfig
 
 import scala.collection.mutable.ListBuffer
 
@@ -20,19 +16,6 @@ import scala.collection.mutable.ListBuffer
  * 2022/7/7 23:15
  */
 object Phase6_ParseBuffs extends ParserPhase[ParsedSkillsAndTalents, ParsedBuffs] {
-  case class ParsedBuffs
-  (
-    config: StoryConfig,
-    attrs: Map[String, Attr],
-    skills: Map[String, Skill],
-    talents: Map[String, Skill],
-    buffs: Map[String, Buff],
-    rawEvents: Map[String, EventIR],
-    achievements: Map[String, Achievement],
-    endings: Map[String, Ending],
-    keywords: Keywords
-  )
-
   /**
    * 添加 Buff 到解析结果
    *

@@ -5,6 +5,7 @@ import arfies.restart.life.excel.reader.ExcelReader
 import arfies.restart.life.excel.writer.StorySerializer
 
 import java.io.{BufferedWriter, File, FileWriter}
+import scala.io.StdIn.readLine
 import scala.util.Using
 
 /**
@@ -50,4 +51,5 @@ object ExcelConverter extends App {
       }
     }
   }
+  readLine("按任意键退出...")
 }

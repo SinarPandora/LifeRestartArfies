@@ -1,15 +1,11 @@
 package arfies.restart.life.excel.parser.phase
 
 import arfies.restart.life.achievement.Achievement
-import arfies.restart.life.excel.ir.{AchievementIR, BuffIR, EndingIR, EventIR, SkillIR}
-import arfies.restart.life.excel.parser.phase.Phase2_ExtractKeywords.ConfigAndKeywords
-import arfies.restart.life.excel.parser.phase.Phase3_ParseAchievements.ParsedAchievements
+import arfies.restart.life.excel.ir.AchievementIR
+import arfies.restart.life.excel.parser.phase.PhaseResults.{ConfigAndKeywords, ParsedAchievements}
 import arfies.restart.life.excel.reader.ExcelReader
 import arfies.restart.life.excel.reader.story.{ConditionReader, TimingReader}
-import arfies.restart.life.player.Player.Attr
-import arfies.restart.life.story.Story.StoryConfig
 
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -19,19 +15,6 @@ import scala.collection.mutable.ListBuffer
  * 2022/7/7 23:10
  */
 object Phase3_ParseAchievements extends ParserPhase[ConfigAndKeywords, ParsedAchievements] {
-  case class ParsedAchievements
-  (
-    config: StoryConfig,
-    attrs: Map[String, Attr],
-    rawSkills: Map[String, SkillIR],
-    rawTalents: Map[String, SkillIR],
-    rawBuffs: Map[String, BuffIR],
-    rawEvents: Map[String, EventIR],
-    achievements: Map[String, Achievement],
-    rawEndings: Map[String, EndingIR],
-    keywords: Keywords
-  )
-
   /**
    * 添加成就到解析结果
    *

@@ -1,7 +1,7 @@
 package arfies.restart.life.excel.parser.phase
 
 import arfies.restart.life.excel.ir.EventIR
-import arfies.restart.life.excel.parser.phase.Phase6_ParseBuffs.ParsedBuffs
+import arfies.restart.life.excel.parser.phase.PhaseResults.ParsedBuffs
 import arfies.restart.life.excel.reader.ExcelReader
 import arfies.restart.life.excel.reader.story.{ConditionReader, EffectReader}
 import arfies.restart.life.story.Condition.{AndCondition, RoundCondition}

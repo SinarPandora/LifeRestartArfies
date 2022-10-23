@@ -62,7 +62,7 @@ object ConditionReader {
             } yield result
           } else {
             for {
-              _ <- if (NUMBER_OPTS.contains(opt)) Left(s"不能对标签 $name 应用数值比较操作：$opt") else Right()
+              _ <- if (NUMBER_OPTS.contains(opt)) Left(s"不能对标签 $name 应用数值比较操作：$opt") else Right(())
               result = TagCondition(timing, name, opt, value)
             } yield result
           }
