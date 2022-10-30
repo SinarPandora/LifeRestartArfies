@@ -22,7 +22,7 @@ abstract class SheetReader[T](name: String, hasHeader: Boolean = true) {
    */
   final def read(sheet: XSSFSheet): Either[Seq[String], Seq[T]] = {
     val maxRowCount = if (hasHeader) sheet.getPhysicalNumberOfRows - 1 else sheet.getPhysicalNumberOfRows
-    if (maxRowCount <= 0) return Left(Seq(s"工作表${name}没有数据！"))
+    // if (maxRowCount <= 0) return Left(Seq(s"工作表${name}没有数据！"))
     val rowIter = {
       val iter = sheet.rowIterator()
       if (hasHeader) iter.next() // 如果存在标题，就先跳过一行

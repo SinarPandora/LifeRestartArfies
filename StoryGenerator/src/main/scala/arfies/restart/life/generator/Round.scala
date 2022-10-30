@@ -273,7 +273,9 @@ class Round(ctx: StoryContext, startState: GameState) {
       case (gameState, skill) =>
         val stillExist = (if (skill.isTalent) gameState.player.talents else gameState.player.skills).contains(skill.name)
         if (stillExist) {
-          performEffectOrKeep(s"${if (skill.isTalent) "天赋" else "技能"}_${skill.name}")(gameState, skill.effect)
+          skill.effect
+            .map(performEffectOrKeep(s"${if (skill.isTalent) "天赋" else "技能"}_${skill.name}")(gameState, _))
+            .getOrElse(gameState)
         } else gameState
     }
   }

@@ -39,7 +39,7 @@ object Phase1_ExtractConfig extends ParserPhase[Unit, StoryConfig] {
     val config = for {
       availableAttrPoints <- extractPositiveIntConfig(AVAILABLE_ATTR_POINTS, rawConfig).pipe(extractResult(_, errors))
       defaultLifePath <- extractTextConfig(DEFAULT_LIFE_PATH, rawConfig).pipe(extractResult(_, errors))
-      startRoundCount <- extractPositiveOrZeroIntConfig(DEFAULT_LIFE_PATH, rawConfig).pipe(extractResult(_, errors))
+      startRoundCount <- extractPositiveOrZeroIntConfig(START_ROUND_COUNT, rawConfig).pipe(extractResult(_, errors))
     } yield StoryConfig(availableAttrPoints, defaultLifePath, startRoundCount)
 
     config.map(Right.apply).getOrElse(Left(errors.toSeq))

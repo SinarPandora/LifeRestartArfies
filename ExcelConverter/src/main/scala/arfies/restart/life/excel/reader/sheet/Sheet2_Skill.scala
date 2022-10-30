@@ -25,9 +25,9 @@ object Sheet2_Skill extends SheetReader[SkillIR]("[3]技能天赋") {
         msg <- Right(XLSXUtil.getCellValueOrElse(row.getCell(1), "无介绍"))
         timing <- XLSXUtil.getCellValueOrErr(row.getCell(2), "需设置技能判定时机")
         condition <- Right(XLSXUtil.getCellValueAsStr(row.getCell(4)))
-        effects <- XLSXUtil.getCellValueOrErr(row.getCell(5), "需设置技能效果")
+        effect <- Right(XLSXUtil.getCellValueAsStr(row.getCell(5)))
         isTalent <- Right(XLSXUtil.getCellValueOrElse(row.getCell(6), "否").trim == "是")
-      } yield SkillIR(name, msg, effects, timing, condition, isTalent, row.getRowNum + 1)
+      } yield SkillIR(name, msg, effect, timing, condition, isTalent, row.getRowNum + 1)
     }
   }
 }

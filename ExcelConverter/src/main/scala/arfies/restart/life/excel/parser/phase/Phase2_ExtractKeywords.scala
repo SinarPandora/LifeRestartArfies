@@ -3,7 +3,6 @@ package arfies.restart.life.excel.parser.phase
 import arfies.restart.life.excel.ir.*
 import arfies.restart.life.excel.parser.phase.PhaseResults.ConfigAndKeywords
 import arfies.restart.life.excel.reader.ExcelReader
-import arfies.restart.life.player.Player.AttrType
 import arfies.restart.life.story.Story.StoryConfig
 
 /**
@@ -13,6 +12,11 @@ import arfies.restart.life.story.Story.StoryConfig
  * 2022/7/7 22:40
  */
 object Phase2_ExtractKeywords extends ParserPhase[StoryConfig, ConfigAndKeywords] {
+  object AttrType {
+    val NUM: String = "数值"
+    val TAG: String = "标签"
+  }
+
   /**
    * 执行
    *

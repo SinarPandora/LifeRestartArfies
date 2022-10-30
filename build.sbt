@@ -71,9 +71,11 @@ lazy val excelConverter: Project = (project in file("ExcelConverter"))
     libraryDependencies ++= Seq(
       "org.apache.poi" % "poi" % "5.2.2",
       "org.apache.poi" % "poi-ooxml" % "5.2.2",
-      "me.tongfei" % "progressbar" % "0.9.3",
-      "org.json4s" %% "json4s-jackson" % "4.0.5",
-      "com.typesafe" % "config" % "1.4.2"
+      "me.tongfei" % "progressbar" % "0.9.5",
+      "org.json4s" %% "json4s-jackson" % "4.0.6",
+      "com.typesafe" % "config" % "1.4.2",
+      "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.19.0",
+      "org.slf4j" % "slf4j-simple" % "2.0.3"
     )
   )
   .dependsOn(storyGenerator, condParser, effParser)
@@ -92,11 +94,11 @@ lazy val compileOptions: Seq[String] = Seq(
 )
 
 lazy val jvmTest: Def.Initialize[Seq[ModuleID]] = Def.setting(Seq(
-  "org.scalactic" %% "scalactic" % "3.2.13",
-  "org.scalatest" %% "scalatest" % "3.2.13" % "test"
+  "org.scalactic" %% "scalactic" % "3.2.14",
+  "org.scalatest" %% "scalatest" % "3.2.14" % "test"
 ))
 
 lazy val jsTest: Def.Initialize[Seq[ModuleID]] = Def.setting(Seq(
-  "org.scalactic" %%% "scalactic" % "3.2.13",
-  "org.scalatest" %%% "scalatest" % "3.2.13" % "test"
+  "org.scalactic" %%% "scalactic" % "3.2.14",
+  "org.scalatest" %%% "scalatest" % "3.2.14" % "test"
 ))

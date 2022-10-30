@@ -48,7 +48,8 @@ object Phase5_ParseSkillAndTalents extends ParserPhase[ParsedEndings, ParsedSkil
         (for {
           timing <- TimingReader.read(rawTiming)
           activeOn <- rawCondition.map(ConditionReader.read(_, timing, from.keywords)).getOrElse(Right(ImmediatelyActivate(timing)))
-          effect <- EffectReader.read(rawEffect, from.keywords)
+          effectOpt = rawEffect.map(EffectReader.read(_, from.keywords))
+          effect <- if (effectOpt.isDefined) effectOpt.get.map(Some.apply) else Right(None)
           skill = Skill(name, msg, effect, activeOn, isTalent)
         } yield skill) match {
           case Left(error) => errors += s"[技能天赋 第${rowCount}行] $error"

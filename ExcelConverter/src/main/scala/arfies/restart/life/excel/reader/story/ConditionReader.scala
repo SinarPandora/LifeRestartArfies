@@ -52,7 +52,7 @@ object ConditionReader {
       case Statements.Compare(name, opt, value) =>
         val isAttr = keywords.exists(name, Condition.Targets.ATTR)
         val isTag = keywords.exists(name, Condition.Targets.TAG)
-        if (isAttr.isLeft && isTag.isLeft) Left("属性/标签不存在")
+        if (isAttr.isLeft && isTag.isLeft) Left(s"属性/标签不存在，属性名：$name")
         else {
           if (isAttr.isRight) {
             for {

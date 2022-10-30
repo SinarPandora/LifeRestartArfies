@@ -42,9 +42,8 @@ object ExcelConverter extends App {
       writer match {
         case Left(errMsgs) =>
           Console.err.println(
-            s"""解析出错，错误如下：
+            s"""\n解析出错，错误如下：
               |${errMsgs.mkString("\n")}""".stripMargin)
-          sys.exit(1)
         case Right(writer) =>
           writer.flush()
           Console.println("解析成功！")
